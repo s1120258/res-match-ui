@@ -5,7 +5,7 @@ export const authAPI = {
   // User registration
   register: async (userData) => {
     try {
-      const response = await apiClient.post("/auth/register", {
+      const response = await apiClient.post("/api/v1/auth/register", {
         email: userData.email,
         password: userData.password,
         full_name: userData.full_name,
@@ -23,7 +23,7 @@ export const authAPI = {
       formData.append("username", email); // Note: field name is 'username'
       formData.append("password", password);
 
-      const response = await apiClient.post("/auth/token", formData, {
+      const response = await apiClient.post("/api/v1/auth/token", formData, {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
@@ -38,7 +38,7 @@ export const authAPI = {
   // Token refresh
   refreshToken: async (refreshToken) => {
     try {
-      const response = await apiClient.post("/auth/refresh", {
+      const response = await apiClient.post("/api/v1/auth/refresh", {
         refresh_token: refreshToken,
       });
       return response.data;
@@ -50,7 +50,7 @@ export const authAPI = {
   // Get current user
   getCurrentUser: async () => {
     try {
-      const response = await apiClient.get("/auth/me");
+      const response = await apiClient.get("/api/v1/auth/me");
       return response.data;
     } catch (error) {
       throw new Error(

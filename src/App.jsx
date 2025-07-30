@@ -1,35 +1,140 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { ChakraProvider } from "@chakra-ui/react";
+import { AuthProvider } from "./contexts/AuthContext";
+import theme from "./theme";
+
+// Layout Components
+import AppLayout from "./components/layout/AppLayout";
+import ProtectedRoute from "./components/common/ProtectedRoute";
+
+// Page Components
+import LoginPage from "./pages/auth/LoginPage";
+import RegisterPage from "./pages/auth/RegisterPage";
+import DashboardPage from "./pages/DashboardPage";
+
+// Placeholder components for routes that aren't implemented yet
+const PlaceholderPage = ({ title }) => (
+  <div style={{ padding: "2rem", textAlign: "center" }}>
+    <h2>{title}</h2>
+    <p>This page is coming soon...</p>
+  </div>
+);
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <ChakraProvider theme={theme}>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+
+            {/* Protected Routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <DashboardPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/jobs/search"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <PlaceholderPage title="Job Search" />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/jobs"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <PlaceholderPage title="Saved Jobs" />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/jobs/:id"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <PlaceholderPage title="Job Details" />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/resume"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <PlaceholderPage title="Resume Management" />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/analytics"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <PlaceholderPage title="Analytics" />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <PlaceholderPage title="Settings" />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <PlaceholderPage title="Profile" />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Default redirect */}
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+            {/* Catch all route */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ChakraProvider>
+  );
 }
 
-export default App
+export default App;

@@ -1,0 +1,86 @@
+import apiClient from "./api";
+
+// Authentication API functions
+export const authAPI = {
+  // User registration
+  register: async (userData) => {
+    try {
+      const response = await apiClient.post("/auth/register", {
+        email: userData.email,
+        password: userData.password,
+        full_name: userData.full_name,
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.detail || "Registration failed");
+    }
+  },
+
+  // User login
+  login: async (email, password) => {
+    try {
+      const formData = new FormData();
+      formData.append("username", email); // Note: field name is 'username'
+      formData.append("password", password);
+
+      const response = await apiClient.post("/auth/token", formData, {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.detail || "Login failed");
+    }
+  },
+
+  // Token refresh
+  refreshToken: async (refreshToken) => {
+    try {
+      const response = await apiClient.post("/auth/refresh", {
+        refresh_token: refreshToken,
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.detail || "Token refresh failed");
+    }
+  },
+
+  // Get current user
+  getCurrentUser: async () => {
+    try {
+      const response = await apiClient.get("/auth/me");
+      return response.data;
+    } catch (error) {
+      throw new Error(
+        error.response?.data?.detail || "Failed to get user info"
+      );
+    }
+  },
+};
+
+// Token management utilities
+export const tokenManager = {
+  setTokens: (accessToken, refreshToken) => {
+    localStorage.setItem("access_token", accessToken);
+    localStorage.setItem("refresh_token", refreshToken);
+  },
+
+  getAccessToken: () => {
+    return localStorage.getItem("access_token");
+  },
+
+  getRefreshToken: () => {
+    return localStorage.getItem("refresh_token");
+  },
+
+  clearTokens: () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+  },
+
+  isAuthenticated: () => {
+    return !!localStorage.getItem("access_token");
+  },
+};

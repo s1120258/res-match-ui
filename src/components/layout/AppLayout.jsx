@@ -30,7 +30,7 @@ import {
   FiSearch,
   FiBookmark,
   FiFileText,
-  FiBarChart3,
+  FiBarChart2,
   FiSettings,
   FiLogOut,
   FiUser,
@@ -56,7 +56,7 @@ const AppLayout = ({ children }) => {
     { name: "Job Search", icon: FiSearch, path: "/jobs/search" },
     { name: "Saved Jobs", icon: FiBookmark, path: "/jobs" },
     { name: "Resume", icon: FiFileText, path: "/resume" },
-    { name: "Analytics", icon: FiBarChart3, path: "/analytics" },
+    { name: "Analytics", icon: FiBarChart2, path: "/analytics" },
     { name: "Settings", icon: FiSettings, path: "/settings" },
   ];
 

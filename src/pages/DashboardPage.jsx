@@ -27,7 +27,7 @@ import {
   FiTrendingUp,
   FiSearch,
   FiUpload,
-  FiBarChart3,
+  FiBarChart2,
 } from "react-icons/fi";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -195,7 +195,7 @@ const DashboardPage = () => {
                     colorScheme="green"
                   />
                   <QuickActionCard
-                    icon={FiBarChart3}
+                    icon={FiBarChart2}
                     title="View Analytics"
                     description="Track your application progress"
                     action="View Reports"

@@ -2,6 +2,8 @@ import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
+console.log("API_BASE_URL:", API_BASE_URL); // Debug log
+
 // Create Axios instance
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -11,13 +13,20 @@ const apiClient = axios.create({
 // Request interceptor (add auth token)
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    try {
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error("Error getting token from localStorage:", error);
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    console.error("Request interceptor error:", error);
+    return Promise.reject(error);
+  }
 );
 
 // Response interceptor (automatic token refresh)
@@ -26,28 +35,37 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Prevent infinite retry loops
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
         const refreshToken = localStorage.getItem("refresh_token");
         if (!refreshToken) {
+          console.log("No refresh token available");
           throw new Error("No refresh token available");
         }
 
+        console.log("Attempting token refresh...");
         const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
           refresh_token: refreshToken,
         });
 
         const { access_token } = response.data;
         localStorage.setItem("access_token", access_token);
+        console.log("Token refreshed successfully");
 
         return apiClient(originalRequest);
       } catch (refreshError) {
-        // Refresh failed → logout
+        console.log("Token refresh failed:", refreshError.message);
+        // Refresh failed → clear tokens and redirect to login
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
-        window.location.href = "/login";
+
+        // Only redirect if we're not already on the login page
+        if (window.location.pathname !== "/login") {
+          window.location.href = "/login";
+        }
       }
     }
 

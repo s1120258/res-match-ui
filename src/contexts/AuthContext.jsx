@@ -1,4 +1,12 @@
-import React, { createContext, useContext, useReducer, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { authAPI, tokenManager } from "../services/auth";
 
 // Auth state
@@ -81,9 +89,10 @@ const AuthContext = createContext();
 // Auth provider component
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
+  const isInitialized = useRef(false);
 
   // Login function
-  const login = async (email, password) => {
+  const login = useCallback(async (email, password) => {
     dispatch({ type: authActions.LOGIN_START });
 
     try {
@@ -106,10 +115,10 @@ export const AuthProvider = ({ children }) => {
       });
       return { success: false, error: error.message };
     }
-  };
+  }, []);
 
   // Register function
-  const register = async (userData) => {
+  const register = useCallback(async (userData) => {
     dispatch({ type: authActions.LOGIN_START });
 
     try {
@@ -132,35 +141,53 @@ export const AuthProvider = ({ children }) => {
       });
       return { success: false, error: error.message };
     }
-  };
+  }, []);
 
   // Logout function
-  const logout = () => {
+  const logout = useCallback(() => {
     tokenManager.clearTokens();
     dispatch({ type: authActions.LOGOUT });
-  };
+  }, []);
 
   // Clear error function
-  const clearError = () => {
+  const clearError = useCallback(() => {
     dispatch({ type: authActions.CLEAR_ERROR });
-  };
+  }, []);
 
   // Check authentication status on mount
   useEffect(() => {
+    // Prevent multiple initialization
+    if (isInitialized.current) {
+      return;
+    }
+
     const checkAuthStatus = async () => {
-      if (tokenManager.isAuthenticated()) {
-        try {
-          const user = await authAPI.getCurrentUser();
+      try {
+        console.log("Checking auth status...");
+
+        if (tokenManager.isAuthenticated()) {
+          try {
+            const user = await authAPI.getCurrentUser();
+            dispatch({
+              type: authActions.SET_USER,
+              payload: { user },
+            });
+            console.log("User authenticated successfully");
+          } catch (error) {
+            console.log("Auth check failed:", error.message);
+            // Token is invalid, clear it
+            tokenManager.clearTokens();
+            dispatch({ type: authActions.LOGOUT });
+          }
+        } else {
+          console.log("No token found, user not authenticated");
           dispatch({
-            type: authActions.SET_USER,
-            payload: { user },
+            type: authActions.SET_LOADING,
+            payload: { isLoading: false },
           });
-        } catch (error) {
-          // Token is invalid, clear it
-          tokenManager.clearTokens();
-          dispatch({ type: authActions.LOGOUT });
         }
-      } else {
+      } catch (error) {
+        console.error("Auth status check error:", error);
         dispatch({
           type: authActions.SET_LOADING,
           payload: { isLoading: false },
@@ -168,16 +195,21 @@ export const AuthProvider = ({ children }) => {
       }
     };
 
+    isInitialized.current = true;
     checkAuthStatus();
-  }, []);
+  }, []); // Empty dependency array - runs only once on mount
 
-  const value = {
-    ...state,
-    login,
-    register,
-    logout,
-    clearError,
-  };
+  // Memoize the context value to prevent unnecessary re-renders
+  const value = useMemo(
+    () => ({
+      ...state,
+      login,
+      register,
+      logout,
+      clearError,
+    }),
+    [state, login, register, logout, clearError]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

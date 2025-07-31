@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Modal,
   ModalOverlay,
@@ -44,10 +45,12 @@ import {
   FiBriefcase,
   FiTrendingUp,
   FiAward,
+  FiEye,
 } from "react-icons/fi";
 import { jobsAPI, JOB_STATUS } from "../../services/jobs";
 
 const JobDetailModal = ({ isOpen, onClose, job, onSave, onApply }) => {
+  const navigate = useNavigate();
   const [jobDetails, setJobDetails] = useState(null);
   const [matchScore, setMatchScore] = useState(null);
   const [skillGapAnalysis, setSkillGapAnalysis] = useState(null);
@@ -163,6 +166,14 @@ const JobDetailModal = ({ isOpen, onClose, job, onSave, onApply }) => {
       });
     } finally {
       setApplying(false);
+    }
+  };
+
+  const handleViewDetails = () => {
+    const jobId = jobDetails?.id || job?.id;
+    if (jobId) {
+      onClose(); // Close modal first
+      navigate(`/jobs/${jobId}`);
     }
   };
 
@@ -288,42 +299,64 @@ const JobDetailModal = ({ isOpen, onClose, job, onSave, onApply }) => {
                     </Box>
 
                     {/* Action Buttons */}
-                    <HStack spacing={3} pt={4}>
-                      {displayJob.url && (
-                        <Button
-                          leftIcon={<Icon as={FiExternalLink} />}
-                          onClick={() => window.open(displayJob.url, "_blank")}
-                          variant="outline"
-                        >
-                          View Original
-                        </Button>
-                      )}
+                    <VStack spacing={3} align="stretch">
+                      {/* Primary Actions */}
+                      <HStack spacing={3} wrap="wrap">
+                        {displayJob.id && (
+                          <Button
+                            leftIcon={<Icon as={FiEye} />}
+                            onClick={handleViewDetails}
+                            colorScheme="brand"
+                            size="lg"
+                          >
+                            View Full Details
+                          </Button>
+                        )}
 
-                      {onSave && displayJob.status !== JOB_STATUS.SAVED && (
-                        <Button
-                          leftIcon={<Icon as={FiBookmark} />}
-                          onClick={handleSave}
-                          isLoading={saving}
-                          loadingText="Saving..."
-                          colorScheme="brand"
-                          variant="outline"
-                        >
-                          Save Job
-                        </Button>
-                      )}
+                        {onSave && displayJob.status !== JOB_STATUS.SAVED && (
+                          <Button
+                            leftIcon={<Icon as={FiBookmark} />}
+                            onClick={handleSave}
+                            isLoading={saving}
+                            loadingText="Saving..."
+                            colorScheme="brand"
+                            variant="outline"
+                            size="lg"
+                          >
+                            Save Job
+                          </Button>
+                        )}
 
-                      {displayJob.status !== JOB_STATUS.APPLIED && (
-                        <Button
-                          leftIcon={<Icon as={FiCheck} />}
-                          onClick={handleApply}
-                          isLoading={applying}
-                          loadingText="Applying..."
-                          colorScheme="brand"
-                        >
-                          Apply Now
-                        </Button>
-                      )}
-                    </HStack>
+                        {displayJob.status !== JOB_STATUS.APPLIED && (
+                          <Button
+                            leftIcon={<Icon as={FiCheck} />}
+                            onClick={handleApply}
+                            isLoading={applying}
+                            loadingText="Applying..."
+                            colorScheme="green"
+                            size="lg"
+                          >
+                            Apply Now
+                          </Button>
+                        )}
+                      </HStack>
+
+                      {/* Secondary Actions */}
+                      <HStack spacing={3}>
+                        {displayJob.url && (
+                          <Button
+                            leftIcon={<Icon as={FiExternalLink} />}
+                            onClick={() =>
+                              window.open(displayJob.url, "_blank")
+                            }
+                            variant="ghost"
+                            size="sm"
+                          >
+                            View Original
+                          </Button>
+                        )}
+                      </HStack>
+                    </VStack>
                   </VStack>
                 </TabPanel>
 
@@ -347,6 +380,19 @@ const JobDetailModal = ({ isOpen, onClose, job, onSave, onApply }) => {
                         size="lg"
                         borderRadius="md"
                       />
+
+                      {/* View Details Button for deeper analysis */}
+                      {displayJob.id && (
+                        <Button
+                          leftIcon={<Icon as={FiEye} />}
+                          onClick={handleViewDetails}
+                          colorScheme="brand"
+                          variant="outline"
+                          alignSelf="start"
+                        >
+                          View Detailed Analysis
+                        </Button>
+                      )}
                     </VStack>
                   </TabPanel>
                 )}
@@ -378,16 +424,22 @@ const JobDetailModal = ({ isOpen, onClose, job, onSave, onApply }) => {
                             Your Strengths
                           </Text>
                           <List spacing={2}>
-                            {skillGapAnalysis.strengths.map(
-                              (strength, index) => (
+                            {skillGapAnalysis.strengths
+                              .slice(0, 3)
+                              .map((strength, index) => (
                                 <ListItem key={index}>
                                   <ListIcon as={FiCheck} color="green.500" />
                                   <strong>{strength.skill}:</strong>{" "}
                                   {strength.reason}
                                 </ListItem>
-                              )
-                            )}
+                              ))}
                           </List>
+                          {skillGapAnalysis.strengths.length > 3 && (
+                            <Text fontSize="sm" color="gray.500" mt={2}>
+                              And {skillGapAnalysis.strengths.length - 3}{" "}
+                              more...
+                            </Text>
+                          )}
                         </Box>
                       )}
 
@@ -404,67 +456,48 @@ const JobDetailModal = ({ isOpen, onClose, job, onSave, onApply }) => {
                             Areas for Improvement
                           </Text>
                           <List spacing={2}>
-                            {skillGapAnalysis.skill_gaps.map((gap, index) => (
-                              <ListItem key={index}>
-                                <ListIcon as={FiX} color="orange.500" />
-                                <strong>{gap.skill}:</strong> {gap.impact}
-                                <Badge
-                                  ml={2}
-                                  colorScheme={
-                                    gap.gap_severity === "Major"
-                                      ? "red"
-                                      : gap.gap_severity === "Minor"
-                                      ? "yellow"
-                                      : "green"
-                                  }
-                                  size="sm"
-                                >
-                                  {gap.gap_severity}
-                                </Badge>
-                              </ListItem>
-                            ))}
-                          </List>
-                        </Box>
-                      )}
-
-                      {/* Learning Recommendations */}
-                      {skillGapAnalysis.learning_recommendations?.length >
-                        0 && (
-                        <Box>
-                          <Text
-                            fontSize="md"
-                            fontWeight="semibold"
-                            mb={3}
-                            color="blue.600"
-                          >
-                            <Icon as={FiAward} mr={2} />
-                            Learning Recommendations
-                          </Text>
-                          <List spacing={2}>
-                            {skillGapAnalysis.learning_recommendations.map(
-                              (rec, index) => (
+                            {skillGapAnalysis.skill_gaps
+                              .slice(0, 3)
+                              .map((gap, index) => (
                                 <ListItem key={index}>
-                                  <ListIcon as={FiStar} color="blue.500" />
-                                  <strong>{rec.skill}:</strong>{" "}
-                                  {rec.suggested_approach}
+                                  <ListIcon as={FiX} color="orange.500" />
+                                  <strong>{gap.skill}:</strong> {gap.impact}
                                   <Badge
                                     ml={2}
                                     colorScheme={
-                                      rec.priority === "High"
+                                      gap.gap_severity === "Major"
                                         ? "red"
-                                        : rec.priority === "Medium"
+                                        : gap.gap_severity === "Minor"
                                         ? "yellow"
                                         : "green"
                                     }
                                     size="sm"
                                   >
-                                    {rec.priority}
+                                    {gap.gap_severity}
                                   </Badge>
                                 </ListItem>
-                              )
-                            )}
+                              ))}
                           </List>
+                          {skillGapAnalysis.skill_gaps.length > 3 && (
+                            <Text fontSize="sm" color="gray.500" mt={2}>
+                              And {skillGapAnalysis.skill_gaps.length - 3} more
+                              gaps...
+                            </Text>
+                          )}
                         </Box>
+                      )}
+
+                      {/* View Full Analysis Button */}
+                      {displayJob.id && (
+                        <Button
+                          leftIcon={<Icon as={FiEye} />}
+                          onClick={handleViewDetails}
+                          colorScheme="brand"
+                          variant="outline"
+                          alignSelf="start"
+                        >
+                          View Complete Skill Analysis
+                        </Button>
                       )}
                     </VStack>
                   </TabPanel>

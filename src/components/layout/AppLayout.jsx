@@ -53,8 +53,7 @@ const AppLayout = ({ children }) => {
 
   const navItems = [
     { name: "Dashboard", icon: FiHome, path: "/dashboard" },
-    { name: "Job Search", icon: FiSearch, path: "/jobs/search" },
-    { name: "Saved Jobs", icon: FiBookmark, path: "/jobs" },
+    { name: "Jobs", icon: FiSearch, path: "/jobs" },
     { name: "Resume", icon: FiFileText, path: "/resume" },
     { name: "Analytics", icon: FiBarChart2, path: "/analytics" },
     { name: "Settings", icon: FiSettings, path: "/settings" },

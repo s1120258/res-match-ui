@@ -47,7 +47,7 @@ const JobsPage = () => {
     keyword: "",
     location: "",
     source: JOB_SOURCES.REMOTEOK,
-    sort_by: SORT_OPTIONS.DATE,
+    sort_by: SORT_OPTIONS.MATCH_SCORE,
     limit: 20,
     fetch_full_description: true,
   });
@@ -285,8 +285,8 @@ const JobsPage = () => {
                       updateSearchParam("sort_by", e.target.value)
                     }
                   >
-                    <option value={SORT_OPTIONS.DATE}>Most Recent</option>
                     <option value={SORT_OPTIONS.MATCH_SCORE}>Best Match</option>
+                    <option value={SORT_OPTIONS.DATE}>Most Recent</option>
                   </Select>
                 </SimpleGrid>
 

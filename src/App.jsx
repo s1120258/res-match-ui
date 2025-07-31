@@ -17,6 +17,7 @@ import ProtectedRoute from "./components/common/ProtectedRoute";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
+import JobsPage from "./pages/JobsPage";
 
 // Placeholder components for routes that aren't implemented yet
 const PlaceholderPage = ({ title }) => (
@@ -49,22 +50,11 @@ function App() {
             />
 
             <Route
-              path="/jobs/search"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <PlaceholderPage title="Job Search" />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
               path="/jobs"
               element={
                 <ProtectedRoute>
                   <AppLayout>
-                    <PlaceholderPage title="Saved Jobs" />
+                    <JobsPage />
                   </AppLayout>
                 </ProtectedRoute>
               }

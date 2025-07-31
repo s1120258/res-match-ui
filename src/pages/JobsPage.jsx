@@ -39,6 +39,7 @@ import {
   JOB_SOURCES,
   SORT_OPTIONS,
 } from "../services/jobs";
+import JobDetailModal from "../components/jobs/JobDetailModal";
 
 const JobsPage = () => {
   // State management
@@ -57,6 +58,8 @@ const JobsPage = () => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("search"); // "search" or "saved"
   const [saving, setSaving] = useState({});
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const toast = useToast();
 
@@ -178,6 +181,18 @@ const JobsPage = () => {
     if (e.key === "Enter") {
       handleSearch();
     }
+  };
+
+  // Open job detail modal
+  const handleJobClick = (job) => {
+    setSelectedJob(job);
+    setIsModalOpen(true);
+  };
+
+  // Close job detail modal
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedJob(null);
   };
 
   return (
@@ -329,6 +344,7 @@ const JobsPage = () => {
                   onSave={activeTab === "search" ? handleSaveJob : null}
                   isSaving={saving[job.id || job.title]}
                   showSaveButton={activeTab === "search"}
+                  onClick={handleJobClick}
                 />
               ))}
             </SimpleGrid>
@@ -349,12 +365,20 @@ const JobsPage = () => {
           </VStack>
         )}
       </VStack>
+
+      {/* Job Detail Modal */}
+      <JobDetailModal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        job={selectedJob}
+        onSave={handleSaveJob}
+      />
     </Container>
   );
 };
 
 // Job Card Component
-const JobCard = ({ job, onSave, isSaving, showSaveButton }) => {
+const JobCard = ({ job, onSave, isSaving, showSaveButton, onClick }) => {
   const getStatusColor = (status) => {
     switch (status) {
       case JOB_STATUS.SAVED:
@@ -373,8 +397,18 @@ const JobCard = ({ job, onSave, isSaving, showSaveButton }) => {
   return (
     <Card
       variant="outline"
-      _hover={{ shadow: "md", transform: "translateY(-2px)" }}
+      _hover={{
+        shadow: "md",
+        transform: "translateY(-2px)",
+        cursor: "pointer",
+      }}
       transition="all 0.2s"
+      onClick={(e) => {
+        // Don't trigger modal if clicking on buttons
+        if (!e.target.closest("button")) {
+          onClick(job);
+        }
+      }}
     >
       <CardHeader pb={2}>
         <Flex justify="space-between" align="start">

@@ -20,11 +20,32 @@ export const jobsAPI = {
         );
       }
 
-      const response = await apiClient.get(
-        `/api/v1/jobs/search?${params.toString()}`
-      );
+      const fullUrl = `/api/v1/jobs/search?${params.toString()}`;
+      const response = await apiClient.get(fullUrl);
       return response.data;
     } catch (error) {
+      // More specific error handling
+      if (error.code === "NETWORK_ERROR" || error.code === "ERR_NETWORK") {
+        throw new Error(
+          "Network connection failed. Please check your internet connection."
+        );
+      } else if (
+        error.code === "ECONNABORTED" ||
+        error.message.includes("timeout")
+      ) {
+        throw new Error(
+          "Search timeout - External job sources are taking longer than expected. Please try again in a moment."
+        );
+      } else if (error.message.includes("CORS")) {
+        throw new Error(
+          "CORS error. The server may not allow requests from this domain."
+        );
+      } else if (!error.response) {
+        throw new Error(
+          "Request failed - no response received. The server may be down."
+        );
+      }
+
       throw new Error(error.response?.data?.detail || "Failed to search jobs");
     }
   },

@@ -40,14 +40,17 @@ import {
   SORT_OPTIONS,
 } from "../services/jobs";
 import JobDetailModal from "../components/jobs/JobDetailModal";
+import { useAuth } from "../contexts/AuthContext"; // Add auth context
 
 const JobsPage = () => {
+  const { user, isAuthenticated } = useAuth(); // Add auth state
+
   // State management
   const [searchParams, setSearchParams] = useState({
     keyword: "",
     location: "",
     source: JOB_SOURCES.REMOTEOK,
-    sort_by: SORT_OPTIONS.MATCH_SCORE,
+    sort_by: SORT_OPTIONS.DATE, // Changed from MATCH_SCORE to DATE as default
     limit: 20,
     fetch_full_description: true,
   });
@@ -72,6 +75,18 @@ const JobsPage = () => {
 
   // Search jobs
   const handleSearch = async () => {
+    // Check authentication first
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication required",
+        description: "Please login to search for jobs",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
     if (!searchParams.keyword.trim()) {
       toast({
         title: "Search keyword required",
@@ -88,14 +103,51 @@ const JobsPage = () => {
 
     try {
       const results = await jobsAPI.searchJobs(searchParams);
-      setJobs(results);
+
+      // Ensure results is an array
+      const jobsArray = Array.isArray(results)
+        ? results
+        : results?.jobs
+        ? results.jobs
+        : results?.data
+        ? results.data
+        : [];
+
+      setJobs(jobsArray);
     } catch (err) {
-      setError(err.message);
+      let errorMessage = err.message;
+
+      // Handle specific error cases
+      if (err.response?.status === 401) {
+        errorMessage = "Authentication failed. Please login again.";
+      } else if (err.response?.status === 403) {
+        errorMessage = "Access denied. Please check your permissions.";
+      } else if (err.response?.status === 404) {
+        errorMessage =
+          "Job search endpoint not found. Please check the API configuration.";
+      } else if (err.response?.status >= 500) {
+        errorMessage = "Server error. Please try again later.";
+      } else if (
+        err.code === "ECONNABORTED" ||
+        err.message.includes("timeout")
+      ) {
+        errorMessage =
+          "Search is taking longer than expected. This may happen when the server needs to fetch fresh job data from external sources. Please try again.";
+      } else if (err.code === "NETWORK_ERROR" || err.code === "ERR_NETWORK") {
+        errorMessage =
+          "Network connection failed. Please check your internet connection.";
+      }
+
+      setError(errorMessage);
+      setJobs([]); // Reset to empty array on error
       toast({
         title: "Search failed",
-        description: err.message,
+        description: errorMessage,
         status: "error",
-        duration: 5000,
+        duration:
+          err.code === "ECONNABORTED" || err.message.includes("timeout")
+            ? 8000
+            : 5000, // Longer duration for timeout errors
         isClosable: true,
       });
     } finally {
@@ -105,19 +157,67 @@ const JobsPage = () => {
 
   // Load saved jobs
   const loadSavedJobs = async () => {
+    // Check authentication first
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication required",
+        description: "Please login to view saved jobs",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
       const results = await jobsAPI.getJobs();
-      setSavedJobs(results);
+
+      // Ensure results is an array
+      const jobsArray = Array.isArray(results)
+        ? results
+        : results?.jobs
+        ? results.jobs
+        : results?.data
+        ? results.data
+        : [];
+
+      setSavedJobs(jobsArray);
     } catch (err) {
-      setError(err.message);
+      let errorMessage = err.message;
+
+      // Handle specific error cases
+      if (err.response?.status === 401) {
+        errorMessage = "Authentication failed. Please login again.";
+      } else if (err.response?.status === 403) {
+        errorMessage = "Access denied. Please check your permissions.";
+      } else if (err.response?.status === 404) {
+        errorMessage = "Saved jobs endpoint not found.";
+      } else if (err.response?.status >= 500) {
+        errorMessage = "Server error. Please try again later.";
+      } else if (
+        err.code === "ECONNABORTED" ||
+        err.message.includes("timeout")
+      ) {
+        errorMessage =
+          "Loading saved jobs is taking longer than expected. Please try again.";
+      } else if (err.code === "NETWORK_ERROR" || err.code === "ERR_NETWORK") {
+        errorMessage =
+          "Network connection failed. Please check your internet connection.";
+      }
+
+      setError(errorMessage);
+      setSavedJobs([]); // Reset to empty array on error
       toast({
         title: "Failed to load saved jobs",
-        description: err.message,
+        description: errorMessage,
         status: "error",
-        duration: 5000,
+        duration:
+          err.code === "ECONNABORTED" || err.message.includes("timeout")
+            ? 8000
+            : 5000, // Longer duration for timeout errors
         isClosable: true,
       });
     } finally {
@@ -203,10 +303,22 @@ const JobsPage = () => {
           <Text fontSize="3xl" fontWeight="bold" mb={2}>
             Job Search
           </Text>
-          <Text color="gray.600">
+          <Text color="gray.600" mb={2}>
             Find your next opportunity and track your applications
           </Text>
+          <Text fontSize="sm" color="gray.500">
+            💡 Job searches may take 20-30 seconds as we fetch fresh
+            opportunities from external job boards
+          </Text>
         </Box>
+
+        {/* Authentication Warning */}
+        {!isAuthenticated && (
+          <Alert status="warning">
+            <AlertIcon />
+            Please login to search and save jobs.
+          </Alert>
+        )}
 
         {/* Tab Navigation */}
         <ButtonGroup isAttached variant="outline">
@@ -215,6 +327,7 @@ const JobsPage = () => {
             variant={activeTab === "search" ? "solid" : "outline"}
             onClick={() => setActiveTab("search")}
             leftIcon={<Icon as={FiSearch} />}
+            isDisabled={!isAuthenticated}
           >
             Search Jobs
           </Button>
@@ -223,6 +336,7 @@ const JobsPage = () => {
             variant={activeTab === "saved" ? "solid" : "outline"}
             onClick={() => setActiveTab("saved")}
             leftIcon={<Icon as={FiBookmark} />}
+            isDisabled={!isAuthenticated}
           >
             Saved Jobs ({savedJobs.length})
           </Button>
@@ -250,6 +364,7 @@ const JobsPage = () => {
                         updateSearchParam("keyword", e.target.value)
                       }
                       onKeyPress={handleKeyPress}
+                      isDisabled={!isAuthenticated}
                     />
                   </InputGroup>
 
@@ -265,6 +380,7 @@ const JobsPage = () => {
                         updateSearchParam("location", e.target.value)
                       }
                       onKeyPress={handleKeyPress}
+                      isDisabled={!isAuthenticated}
                     />
                   </InputGroup>
 
@@ -274,6 +390,7 @@ const JobsPage = () => {
                     onChange={(e) =>
                       updateSearchParam("source", e.target.value)
                     }
+                    isDisabled={!isAuthenticated}
                   >
                     <option value={JOB_SOURCES.REMOTEOK}>RemoteOK</option>
                   </Select>
@@ -284,9 +401,10 @@ const JobsPage = () => {
                     onChange={(e) =>
                       updateSearchParam("sort_by", e.target.value)
                     }
+                    isDisabled={!isAuthenticated}
                   >
-                    <option value={SORT_OPTIONS.MATCH_SCORE}>Best Match</option>
                     <option value={SORT_OPTIONS.DATE}>Most Recent</option>
+                    <option value={SORT_OPTIONS.MATCH_SCORE}>Best Match</option>
                   </Select>
                 </SimpleGrid>
 
@@ -297,8 +415,9 @@ const JobsPage = () => {
                   leftIcon={<Icon as={FiSearch} />}
                   onClick={handleSearch}
                   isLoading={loading}
-                  loadingText="Searching..."
+                  loadingText="Fetching jobs from external sources..."
                   w={{ base: "full", md: "auto" }}
+                  isDisabled={!isAuthenticated}
                 >
                   Search Jobs
                 </Button>
@@ -317,8 +436,14 @@ const JobsPage = () => {
 
         {/* Loading Spinner */}
         {loading && (
-          <Flex justify="center" py={8}>
-            <Spinner size="xl" color="brand.500" />
+          <Flex justify="center" py={8} direction="column" align="center">
+            <Spinner size="xl" color="brand.500" mb={4} />
+            <Text color="gray.600" fontSize="sm" textAlign="center">
+              Fetching fresh job opportunities from external sources...
+            </Text>
+            <Text color="gray.500" fontSize="xs" mt={2}>
+              This may take up to 30 seconds
+            </Text>
           </Flex>
         )}
 
@@ -337,7 +462,14 @@ const JobsPage = () => {
 
             {/* Job Cards */}
             <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={4}>
-              {(activeTab === "search" ? jobs : savedJobs).map((job, index) => (
+              {(activeTab === "search"
+                ? Array.isArray(jobs)
+                  ? jobs
+                  : []
+                : Array.isArray(savedJobs)
+                ? savedJobs
+                : []
+              ).map((job, index) => (
                 <JobCard
                   key={job.id || `${job.title}-${index}`}
                   job={job}

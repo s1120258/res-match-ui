@@ -2,12 +2,12 @@ import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-console.log("API_BASE_URL:", API_BASE_URL); // Debug log
-
 // Create Axios instance
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 30000, // Increased from 10s to 30s for external API calls
+  timeoutErrorMessage:
+    "Request timeout - the server is taking longer than expected to respond",
 });
 
 // Request interceptor (add auth token)

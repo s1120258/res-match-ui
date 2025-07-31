@@ -63,6 +63,7 @@ const JobsPage = () => {
   const [saving, setSaving] = useState({});
   const [selectedJob, setSelectedJob] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [retryCount, setRetryCount] = useState(0); // Add retry counter
 
   const toast = useToast();
 
@@ -73,8 +74,8 @@ const JobsPage = () => {
     }
   }, [activeTab]);
 
-  // Search jobs
-  const handleSearch = async () => {
+  // Quick search with reduced parameters to avoid timeout
+  const handleQuickSearch = async () => {
     // Check authentication first
     if (!isAuthenticated) {
       toast({
@@ -100,9 +101,101 @@ const JobsPage = () => {
 
     setLoading(true);
     setError(null);
+    setRetryCount(0);
+
+    // Use simplified parameters for faster search
+    const quickSearchParams = {
+      keyword: searchParams.keyword,
+      source: searchParams.source,
+      sort_by: SORT_OPTIONS.DATE,
+      limit: 10, // Reduced limit
+      fetch_full_description: false, // Skip full descriptions for speed
+    };
 
     try {
+      console.log("⚡ Quick search with params:", quickSearchParams);
+
+      const results = await jobsAPI.searchJobs(quickSearchParams);
+      console.log("✅ Quick search results:", results);
+
+      const jobsArray = Array.isArray(results)
+        ? results
+        : results?.jobs
+        ? results.jobs
+        : results?.data
+        ? results.data
+        : [];
+
+      setJobs(jobsArray);
+
+      toast({
+        title: "Quick search completed",
+        description: `Found ${jobsArray.length} jobs with quick search (limited details)`,
+        status: "success",
+        duration: 4000,
+        isClosable: true,
+      });
+    } catch (err) {
+      console.error("❌ Quick search failed:", err);
+
+      let errorMessage = "Quick search failed. " + err.message;
+      setError(errorMessage);
+      setJobs([]);
+
+      toast({
+        title: "Quick search failed",
+        description: errorMessage,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Search jobs with retry mechanism
+  const handleSearch = async (isRetry = false) => {
+    // Check authentication first
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication required",
+        description: "Please login to search for jobs",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    if (!searchParams.keyword.trim()) {
+      toast({
+        title: "Search keyword required",
+        description: "Please enter a keyword to search for jobs",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    if (!isRetry) {
+      setRetryCount(0);
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      console.log("🔍 Starting job search with params:", searchParams);
+      console.log("🔑 Authentication state:", {
+        isAuthenticated,
+        hasAccessToken: !!localStorage.getItem("access_token"),
+        user: user?.email,
+      });
+
       const results = await jobsAPI.searchJobs(searchParams);
+      console.log("✅ Search results received:", results);
 
       // Ensure results is an array
       const jobsArray = Array.isArray(results)
@@ -113,9 +206,19 @@ const JobsPage = () => {
         ? results.data
         : [];
 
+      console.log("📋 Processed jobs array:", jobsArray.length, "jobs");
       setJobs(jobsArray);
+      setRetryCount(0); // Reset retry count on success
     } catch (err) {
+      console.error("❌ Search failed:", {
+        message: err.message,
+        code: err.code,
+        status: err.response?.status,
+        data: err.response?.data,
+      });
+
       let errorMessage = err.message;
+      let shouldShowRetry = false;
 
       // Handle specific error cases
       if (err.response?.status === 401) {
@@ -127,28 +230,50 @@ const JobsPage = () => {
           "Job search endpoint not found. Please check the API configuration.";
       } else if (err.response?.status >= 500) {
         errorMessage = "Server error. Please try again later.";
+        shouldShowRetry = true;
       } else if (
         err.code === "ECONNABORTED" ||
         err.message.includes("timeout")
       ) {
         errorMessage =
-          "Search is taking longer than expected. This may happen when the server needs to fetch fresh job data from external sources. Please try again.";
+          "Search is taking longer than expected. This may happen when the server needs to fetch fresh job data from external sources.";
+        shouldShowRetry = retryCount < 2; // Allow up to 2 retries
       } else if (err.code === "NETWORK_ERROR" || err.code === "ERR_NETWORK") {
         errorMessage =
           "Network connection failed. Please check your internet connection.";
+        shouldShowRetry = true;
+      } else {
+        shouldShowRetry = retryCount < 1; // Allow 1 retry for unknown errors
       }
 
       setError(errorMessage);
       setJobs([]); // Reset to empty array on error
+
+      // Show toast with retry option
       toast({
         title: "Search failed",
-        description: errorMessage,
+        description: shouldShowRetry
+          ? `${errorMessage} Click retry to try again.`
+          : errorMessage,
         status: "error",
-        duration:
-          err.code === "ECONNABORTED" || err.message.includes("timeout")
-            ? 8000
-            : 5000, // Longer duration for timeout errors
+        duration: shouldShowRetry
+          ? 10000
+          : err.code === "ECONNABORTED" || err.message.includes("timeout")
+          ? 8000
+          : 5000,
         isClosable: true,
+        action: shouldShowRetry ? (
+          <Button
+            size="sm"
+            onClick={() => {
+              setRetryCount((prev) => prev + 1);
+              handleSearch(true);
+            }}
+            disabled={loading}
+          >
+            Retry ({retryCount + 1}/3)
+          </Button>
+        ) : null,
       });
     } finally {
       setLoading(false);
@@ -307,8 +432,11 @@ const JobsPage = () => {
             Find your next opportunity and track your applications
           </Text>
           <Text fontSize="sm" color="gray.500">
-            💡 Job searches may take 20-30 seconds as we fetch fresh
+            💡 Job searches may take 30-45 seconds as we fetch fresh
             opportunities from external job boards
+          </Text>
+          <Text fontSize="sm" color="blue.500" mt={1}>
+            ⚡ Use "Quick" search for faster results with basic job details
           </Text>
         </Box>
 
@@ -409,18 +537,30 @@ const JobsPage = () => {
                 </SimpleGrid>
 
                 {/* Search Button */}
-                <Button
-                  colorScheme="brand"
-                  size="lg"
-                  leftIcon={<Icon as={FiSearch} />}
-                  onClick={handleSearch}
-                  isLoading={loading}
-                  loadingText="Fetching jobs from external sources..."
-                  w={{ base: "full", md: "auto" }}
-                  isDisabled={!isAuthenticated}
-                >
-                  Search Jobs
-                </Button>
+                <HStack spacing={3} w={{ base: "full", md: "auto" }}>
+                  <Button
+                    colorScheme="brand"
+                    size="lg"
+                    leftIcon={<Icon as={FiSearch} />}
+                    onClick={handleSearch}
+                    isLoading={loading}
+                    loadingText="Fetching jobs from external sources..."
+                    flex={1}
+                    isDisabled={!isAuthenticated}
+                  >
+                    Search Jobs
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => handleQuickSearch()}
+                    isLoading={loading}
+                    isDisabled={!isAuthenticated}
+                    title="Quick search with fewer details"
+                  >
+                    Quick
+                  </Button>
+                </HStack>
               </VStack>
             </CardBody>
           </Card>
@@ -430,7 +570,15 @@ const JobsPage = () => {
         {error && (
           <Alert status="error">
             <AlertIcon />
-            {error}
+            <VStack align="start" spacing={2} flex={1}>
+              <Text>{error}</Text>
+              {error.includes("timeout") && (
+                <Text fontSize="sm" color="gray.600">
+                  💡 Try the "Quick" search button for faster results with
+                  limited details.
+                </Text>
+              )}
+            </VStack>
           </Alert>
         )}
 
@@ -442,7 +590,7 @@ const JobsPage = () => {
               Fetching fresh job opportunities from external sources...
             </Text>
             <Text color="gray.500" fontSize="xs" mt={2}>
-              This may take up to 30 seconds
+              This may take up to 45 seconds
             </Text>
           </Flex>
         )}

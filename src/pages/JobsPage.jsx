@@ -621,12 +621,12 @@ const JobCard = ({ job, onSave, isSaving, showSaveButton, onClick }) => {
 
       <CardBody pt={0}>
         <VStack align="stretch" spacing={3}>
-          {/* Job Description/Tags */}
-          <Text color="gray.600" fontSize="sm" noOfLines={3}>
-            {job.description ||
-              (job.tags && job.tags.join(", ")) ||
-              "No description available"}
-          </Text>
+          {/* Tags */}
+          {job.tags && job.tags.length > 0 && (
+            <Text color="gray.600" fontSize="sm" noOfLines={2}>
+              {job.tags.join(" • ")}
+            </Text>
+          )}
 
           <Divider />
 

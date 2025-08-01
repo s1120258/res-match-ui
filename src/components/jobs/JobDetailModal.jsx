@@ -80,30 +80,30 @@ const JobDetailModal = ({ isOpen, onClose, job, onSave, onApply }) => {
       setLoading(false);
       setSummaryLoading(false);
 
-      // Load new data with priority order
-      loadJobDataWithPriority();
+      // Load job data with parallel execution
+      loadJobDataWithParallelAPIs();
     }
   }, [isOpen, job]);
 
-  const loadJobDataWithPriority = async () => {
+  const loadJobDataWithParallelAPIs = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      // Step 1: Load basic job details first
+      // Step 1: Load basic job details first (required for saved jobs)
       if (job?.id) {
         const details = await jobsAPI.getJob(job.id);
         setJobDetails(details);
       } else {
-        // Use the job data we already have
+        // Use the job data we already have from search results
         setJobDetails(job);
       }
 
-      // Step 2: Load AI summary first (priority)
-      await loadJobSummary(job);
-
-      // Step 3: Start skill-related APIs in background
-      loadSkillRelatedAPIs();
+      // Step 2: Execute all analysis APIs in parallel
+      // Summary, match score, and skill gap analysis run independently
+      loadJobSummary(job);
+      loadMatchScore();
+      loadSkillGapAnalysis();
     } catch (err) {
       setError(err.message);
       toast({
@@ -118,16 +118,21 @@ const JobDetailModal = ({ isOpen, onClose, job, onSave, onApply }) => {
     }
   };
 
-  const loadSkillRelatedAPIs = async () => {
+  // Load match score (independent API for overall job compatibility)
+  const loadMatchScore = async () => {
     if (!job?.id) return;
 
-    // Load skill APIs in parallel
     try {
       const matchData = await jobsAPI.getMatchScore(job.id);
       setMatchScore(matchData);
     } catch (err) {
       console.log("Match score not available:", err.message);
     }
+  };
+
+  // Load skill gap analysis (skill-specific analysis)
+  const loadSkillGapAnalysis = async () => {
+    if (!job?.id) return;
 
     try {
       const skillData = await jobsAPI.getSkillGapAnalysis(job.id);

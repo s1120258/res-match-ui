@@ -587,29 +587,6 @@ const JobDetailPage = () => {
                         </Box>
                       )}
                     </Box>
-
-                    {/* Job Description - Original (for reference) */}
-                    <Box>
-                      <Text fontSize="xl" fontWeight="semibold" mb={4}>
-                        Original Job Description
-                      </Text>
-                      <Box
-                        p={6}
-                        bg="gray.50"
-                        borderRadius="lg"
-                        border="1px"
-                        borderColor="gray.200"
-                      >
-                        <Text
-                          color="gray.700"
-                          lineHeight="tall"
-                          whiteSpace="pre-wrap"
-                          fontSize="md"
-                        >
-                          {job.description || "No description available"}
-                        </Text>
-                      </Box>
-                    </Box>
                   </VStack>
                 </TabPanel>
 

@@ -68,10 +68,13 @@ const JobDetailPage = () => {
   const [matchScore, setMatchScore] = useState(null);
   const [skillGapAnalysis, setSkillGapAnalysis] = useState(null);
   const [jobSkills, setJobSkills] = useState(null);
+  const [jobSummary, setJobSummary] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [summaryLoading, setSummaryLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [applying, setApplying] = useState(false);
   const [error, setError] = useState(null);
+  const [summaryError, setSummaryError] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
 
   // Load job details on component mount
@@ -86,33 +89,20 @@ const JobDetailPage = () => {
     setError(null);
 
     try {
-      // Load basic job details
+      // Step 1: Load basic job details first (fast display)
       const jobData = await jobsAPI.getJob(id);
       setJob(jobData);
+      setLoading(false); // Show basic job info immediately
 
-      // Load additional data in parallel
-      const promises = [
-        jobsAPI.getMatchScore(id).catch((err) => {
-          console.log("Match score not available:", err.message);
-          return null;
-        }),
-        jobsAPI.getSkillGapAnalysis(id).catch((err) => {
-          console.log("Skill gap analysis not available:", err.message);
-          return null;
-        }),
-        jobsAPI.extractJobSkills(id).catch((err) => {
-          console.log("Job skills extraction not available:", err.message);
-          return null;
-        }),
-      ];
-
-      const [matchData, skillData, skillsData] = await Promise.all(promises);
-
-      setMatchScore(matchData);
-      setSkillGapAnalysis(skillData);
-      setJobSkills(skillsData);
+      // Step 2: Execute all analysis APIs in parallel
+      // Summary, match score, skill gap analysis, and job skills run independently
+      loadJobSummary(id);
+      loadMatchScore();
+      loadSkillGapAnalysis();
+      loadJobSkills();
     } catch (err) {
       setError(err.message);
+      setLoading(false);
       toast({
         title: "Failed to load job details",
         description: err.message,
@@ -120,8 +110,51 @@ const JobDetailPage = () => {
         duration: 5000,
         isClosable: true,
       });
+    }
+  };
+
+  const loadJobSummary = async (jobId) => {
+    setSummaryLoading(true);
+    setSummaryError(null);
+
+    try {
+      const summaryData = await jobsAPI.getJobSummary(jobId);
+      setJobSummary(summaryData);
+    } catch (err) {
+      console.error("AI summary failed:", err.message);
+      setSummaryError(err.message);
     } finally {
-      setLoading(false);
+      setSummaryLoading(false);
+    }
+  };
+
+  // Load match score (independent API for overall job compatibility)
+  const loadMatchScore = async () => {
+    try {
+      const matchData = await jobsAPI.getMatchScore(id);
+      setMatchScore(matchData);
+    } catch (err) {
+      console.log("Match score not available:", err.message);
+    }
+  };
+
+  // Load skill gap analysis (skill-specific analysis)
+  const loadSkillGapAnalysis = async () => {
+    try {
+      const skillData = await jobsAPI.getSkillGapAnalysis(id);
+      setSkillGapAnalysis(skillData);
+    } catch (err) {
+      console.log("Skill gap analysis not available:", err.message);
+    }
+  };
+
+  // Load job skills extraction (skill extraction from job description)
+  const loadJobSkills = async () => {
+    try {
+      const skillsData = await jobsAPI.extractJobSkills(id);
+      setJobSkills(skillsData);
+    } catch (err) {
+      console.log("Job skills extraction not available:", err.message);
     }
   };
 
@@ -421,10 +454,144 @@ const JobDetailPage = () => {
                 {/* Job Details Tab */}
                 <TabPanel px={0}>
                   <VStack spacing={6} align="stretch">
-                    {/* Job Description */}
+                    {/* AI Summary Section */}
                     <Box>
                       <Text fontSize="xl" fontWeight="semibold" mb={4}>
-                        Job Description
+                        <Icon as={FiStar} mr={2} color="brand.500" />
+                        AI Summary
+                      </Text>
+
+                      {summaryLoading && (
+                        <Box
+                          p={6}
+                          bg="gray.50"
+                          borderRadius="lg"
+                          border="1px"
+                          borderColor="gray.200"
+                        >
+                          <HStack spacing={3}>
+                            <Spinner size="md" color="brand.500" />
+                            <Text color="gray.600">
+                              Generating job summary...
+                            </Text>
+                          </HStack>
+                        </Box>
+                      )}
+
+                      {summaryError && (
+                        <Box
+                          p={6}
+                          bg="red.50"
+                          borderRadius="lg"
+                          border="1px"
+                          borderColor="red.200"
+                        >
+                          <VStack spacing={4} align="start">
+                            <HStack spacing={2}>
+                              <Icon as={FiX} color="red.500" />
+                              <Text color="red.700">
+                                Failed to generate summary
+                              </Text>
+                            </HStack>
+                            <Text color="red.600" fontSize="sm">
+                              {summaryError}
+                            </Text>
+                            <Button
+                              size="sm"
+                              colorScheme="red"
+                              variant="outline"
+                              onClick={() => loadJobSummary(id)}
+                              leftIcon={<Icon as={FiStar} />}
+                            >
+                              Try Again
+                            </Button>
+                          </VStack>
+                        </Box>
+                      )}
+
+                      {jobSummary && !summaryLoading && !summaryError && (
+                        <Box
+                          p={6}
+                          bg="blue.50"
+                          borderRadius="lg"
+                          border="1px"
+                          borderColor="blue.200"
+                        >
+                          <VStack spacing={4} align="start">
+                            <Text
+                              color="blue.800"
+                              lineHeight="tall"
+                              fontSize="lg"
+                            >
+                              {jobSummary.summary || "No summary text found"}
+                            </Text>
+
+                            {jobSummary.key_points &&
+                              jobSummary.key_points.length > 0 && (
+                                <Box>
+                                  <Text
+                                    fontSize="md"
+                                    fontWeight="semibold"
+                                    color="blue.700"
+                                    mb={3}
+                                  >
+                                    Key Points:
+                                  </Text>
+                                  <SimpleGrid
+                                    columns={{ base: 1, md: 2 }}
+                                    spacing={2}
+                                  >
+                                    {jobSummary.key_points.map(
+                                      (point, index) => (
+                                        <HStack
+                                          key={index}
+                                          align="start"
+                                          spacing={2}
+                                        >
+                                          <Icon
+                                            as={FiCheck}
+                                            color="blue.500"
+                                            mt={1}
+                                          />
+                                          <Text fontSize="sm" color="blue.700">
+                                            {point}
+                                          </Text>
+                                        </HStack>
+                                      )
+                                    )}
+                                  </SimpleGrid>
+                                </Box>
+                              )}
+
+                            <HStack spacing={6} fontSize="xs" color="gray.500">
+                              {jobSummary.summary_length && (
+                                <Text>
+                                  Summary: {jobSummary.summary_length} words
+                                </Text>
+                              )}
+                              {jobSummary.original_length && (
+                                <Text>
+                                  Original: {jobSummary.original_length} words
+                                </Text>
+                              )}
+                              {jobSummary.generated_at && (
+                                <Text>
+                                  Generated:{" "}
+                                  {new Date(
+                                    jobSummary.generated_at
+                                  ).toLocaleTimeString()}
+                                </Text>
+                              )}
+                            </HStack>
+                          </VStack>
+                        </Box>
+                      )}
+                    </Box>
+
+                    {/* Job Description - Original (for reference) */}
+                    <Box>
+                      <Text fontSize="xl" fontWeight="semibold" mb={4}>
+                        Original Job Description
                       </Text>
                       <Box
                         p={6}

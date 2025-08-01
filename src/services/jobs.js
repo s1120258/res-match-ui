@@ -177,6 +177,39 @@ export const jobsAPI = {
       );
     }
   },
+
+  // Get saved job summary (for jobs that are already saved)
+  getJobSummary: async (jobId, maxLength = 150) => {
+    try {
+      const response = await apiClient.get(`/api/v1/jobs/${jobId}/summary`, {
+        params: {
+          max_length: maxLength, // Maximum length of summary in words (50-300)
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(
+        error.response?.data?.detail || "Failed to get job summary"
+      );
+    }
+  },
+
+  // Generate job summary (for unsaved jobs from search results)
+  generateJobSummary: async (jobData) => {
+    try {
+      const response = await apiClient.post("/api/v1/jobs/summary", {
+        job_description: jobData.job_description || jobData.description,
+        job_title: jobData.job_title || jobData.title,
+        company_name: jobData.company_name || jobData.company,
+        max_length: jobData.max_length || 150, // Optional, default: 150
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(
+        error.response?.data?.detail || "Failed to generate job summary"
+      );
+    }
+  },
 };
 
 // Job status constants

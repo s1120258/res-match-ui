@@ -60,14 +60,34 @@ const JobDetailModal = ({ isOpen, onClose, job, onSave, onApply }) => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
 
+  // Job summary states
+  const [jobSummary, setJobSummary] = useState(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summaryError, setSummaryError] = useState(null);
+
   const toast = useToast();
 
-  // Load job details when modal opens
+  // Reset states when modal opens or job changes
   useEffect(() => {
-    if (isOpen && job?.id) {
-      loadJobDetails();
+    if (isOpen && job) {
+      // Clear previous data immediately to prevent showing wrong content
+      setJobDetails(null);
+      setMatchScore(null);
+      setSkillGapAnalysis(null);
+      setJobSummary(null);
+      setError(null);
+      setSummaryError(null);
+      setLoading(false);
+      setSummaryLoading(false);
+
+      // Load new data
+      if (job?.id) {
+        loadJobDetails();
+      }
+      // Load summary for both saved and unsaved jobs
+      loadJobSummary(job);
     }
-  }, [isOpen, job?.id]);
+  }, [isOpen, job]);
 
   const loadJobDetails = async () => {
     setLoading(true);
@@ -109,6 +129,67 @@ const JobDetailModal = ({ isOpen, onClose, job, onSave, onApply }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Load job summary
+  const loadJobSummary = async (currentJob) => {
+    if (!currentJob) {
+      console.log("[SUMMARY] No job provided, skipping summary");
+      return;
+    }
+
+    setSummaryLoading(true);
+    setSummaryError(null);
+
+    try {
+      let summaryData;
+
+      if (currentJob?.id) {
+        // Job is saved - use GET endpoint
+        console.log(
+          "[SUMMARY] Loading summary for saved job:",
+          currentJob.id,
+          "Title:",
+          currentJob.title
+        );
+        summaryData = await jobsAPI.getJobSummary(currentJob.id);
+      } else {
+        // Job is from search results - use POST endpoint
+        console.log(
+          "[SUMMARY] Generating summary for unsaved job. Title:",
+          currentJob.title,
+          "Company:",
+          currentJob.company
+        );
+        summaryData = await jobsAPI.generateJobSummary({
+          job_description: currentJob.description,
+          job_title: currentJob.title,
+          company_name: currentJob.company,
+          max_length: 150,
+        });
+      }
+
+      setJobSummary(summaryData);
+      console.log(
+        "[SUMMARY] Summary loaded successfully for:",
+        currentJob.title
+      );
+    } catch (err) {
+      console.error(
+        "[ERROR] Summary loading failed for:",
+        currentJob.title,
+        "Error:",
+        err.message
+      );
+      setSummaryError(err.message);
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
+
+  // Retry summary generation
+  const retryJobSummary = () => {
+    loadJobSummary(job);
   };
 
   const handleSave = async () => {
@@ -178,6 +259,16 @@ const JobDetailModal = ({ isOpen, onClose, job, onSave, onApply }) => {
   };
 
   const displayJob = jobDetails || job;
+
+  // Debug logging to track which job is being displayed
+  console.log("[MODAL] Displaying job:", {
+    modalOpen: isOpen,
+    jobTitle: displayJob?.title,
+    jobCompany: displayJob?.company,
+    jobId: displayJob?.id,
+    isJobDetails: !!jobDetails,
+    isOriginalJob: !jobDetails && !!job,
+  });
 
   if (!displayJob) return null;
 
@@ -276,26 +367,132 @@ const JobDetailModal = ({ isOpen, onClose, job, onSave, onApply }) => {
 
                     <Divider />
 
-                    {/* Job Description */}
+                    {/* AI Summary Section */}
                     <Box>
                       <Text fontSize="lg" fontWeight="semibold" mb={3}>
-                        Job Description
+                        <Icon as={FiStar} mr={2} color="brand.500" />
+                        AI Summary
                       </Text>
-                      <Box
-                        p={4}
-                        bg="gray.50"
-                        borderRadius="md"
-                        border="1px"
-                        borderColor="gray.200"
-                      >
-                        <Text
-                          color="gray.700"
-                          lineHeight="tall"
-                          whiteSpace="pre-wrap"
+
+                      {summaryLoading && (
+                        <Box
+                          p={4}
+                          bg="gray.50"
+                          borderRadius="md"
+                          border="1px"
+                          borderColor="gray.200"
                         >
-                          {displayJob.description || "No description available"}
-                        </Text>
-                      </Box>
+                          <HStack spacing={3}>
+                            <Spinner size="sm" color="brand.500" />
+                            <Text color="gray.600" fontSize="sm">
+                              Generating job summary...
+                            </Text>
+                          </HStack>
+                        </Box>
+                      )}
+
+                      {summaryError && (
+                        <Box
+                          p={4}
+                          bg="red.50"
+                          borderRadius="md"
+                          border="1px"
+                          borderColor="red.200"
+                        >
+                          <VStack spacing={3} align="start">
+                            <HStack spacing={2}>
+                              <Icon as={FiX} color="red.500" />
+                              <Text color="red.700" fontSize="sm">
+                                Failed to generate summary
+                              </Text>
+                            </HStack>
+                            <Text color="red.600" fontSize="sm">
+                              {summaryError}
+                            </Text>
+                            <Button
+                              size="sm"
+                              colorScheme="red"
+                              variant="outline"
+                              onClick={retryJobSummary}
+                              leftIcon={<Icon as={FiStar} />}
+                            >
+                              Try Again
+                            </Button>
+                          </VStack>
+                        </Box>
+                      )}
+
+                      {jobSummary && !summaryLoading && !summaryError && (
+                        <Box
+                          p={4}
+                          bg="blue.50"
+                          borderRadius="md"
+                          border="1px"
+                          borderColor="blue.200"
+                        >
+                          <VStack spacing={3} align="start">
+                            <Text
+                              color="blue.800"
+                              lineHeight="tall"
+                              fontSize="md"
+                            >
+                              {jobSummary.summary}
+                            </Text>
+
+                            {jobSummary.key_points &&
+                              jobSummary.key_points.length > 0 && (
+                                <Box>
+                                  <Text
+                                    fontSize="sm"
+                                    fontWeight="semibold"
+                                    color="blue.700"
+                                    mb={2}
+                                  >
+                                    Key Points:
+                                  </Text>
+                                  <List spacing={1}>
+                                    {jobSummary.key_points
+                                      .slice(0, 4)
+                                      .map((point, index) => (
+                                        <ListItem
+                                          key={index}
+                                          fontSize="sm"
+                                          color="blue.700"
+                                        >
+                                          <ListIcon
+                                            as={FiCheck}
+                                            color="blue.500"
+                                          />
+                                          {point}
+                                        </ListItem>
+                                      ))}
+                                  </List>
+                                </Box>
+                              )}
+
+                            <HStack spacing={4} fontSize="xs" color="gray.500">
+                              {jobSummary.summary_length && (
+                                <Text>
+                                  Summary: {jobSummary.summary_length} words
+                                </Text>
+                              )}
+                              {jobSummary.original_length && (
+                                <Text>
+                                  Original: {jobSummary.original_length} words
+                                </Text>
+                              )}
+                              {jobSummary.generated_at && (
+                                <Text>
+                                  Generated:{" "}
+                                  {new Date(
+                                    jobSummary.generated_at
+                                  ).toLocaleTimeString()}
+                                </Text>
+                              )}
+                            </HStack>
+                          </VStack>
+                        </Box>
+                      )}
                     </Box>
 
                     {/* Action Buttons */}

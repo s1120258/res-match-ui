@@ -40,30 +40,30 @@ import {
   SORT_OPTIONS,
 } from "../services/jobs";
 import JobDetailModal from "../components/jobs/JobDetailModal";
-import { useAuth } from "../contexts/AuthContext"; // Add auth context
+import { useAuth } from "../contexts/AuthContext";
 
 const JobsPage = () => {
-  const { user, isAuthenticated } = useAuth(); // Add auth state
+  const { user, isAuthenticated } = useAuth();
 
   // State management
   const [searchParams, setSearchParams] = useState({
     keyword: "",
     location: "",
     source: JOB_SOURCES.REMOTEOK,
-    sort_by: SORT_OPTIONS.DATE, // Changed from MATCH_SCORE to DATE as default
+    sort_by: SORT_OPTIONS.DATE,
     limit: 20,
-    fetch_full_description: true,
+    fetch_full_description: false, // Changed to false for fast searches
   });
 
   const [jobs, setJobs] = useState([]);
   const [savedJobs, setSavedJobs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState("search"); // "search" or "saved"
+  const [activeTab, setActiveTab] = useState("search");
   const [saving, setSaving] = useState({});
   const [selectedJob, setSelectedJob] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [retryCount, setRetryCount] = useState(0); // Add retry counter
+  const [retryCount, setRetryCount] = useState(0);
 
   const toast = useToast();
 
@@ -73,86 +73,6 @@ const JobsPage = () => {
       loadSavedJobs();
     }
   }, [activeTab]);
-
-  // Quick search with reduced parameters to avoid timeout
-  const handleQuickSearch = async () => {
-    // Check authentication first
-    if (!isAuthenticated) {
-      toast({
-        title: "Authentication required",
-        description: "Please login to search for jobs",
-        status: "warning",
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
-
-    if (!searchParams.keyword.trim()) {
-      toast({
-        title: "Search keyword required",
-        description: "Please enter a keyword to search for jobs",
-        status: "warning",
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    setRetryCount(0);
-
-    // Use simplified parameters for faster search
-    const quickSearchParams = {
-      keyword: searchParams.keyword,
-      source: searchParams.source,
-      sort_by: SORT_OPTIONS.DATE,
-      limit: 10, // Reduced limit
-      fetch_full_description: false, // Skip full descriptions for speed
-    };
-
-    try {
-      console.log("⚡ Quick search with params:", quickSearchParams);
-
-      const results = await jobsAPI.searchJobs(quickSearchParams);
-      console.log("✅ Quick search results:", results);
-
-      const jobsArray = Array.isArray(results)
-        ? results
-        : results?.jobs
-        ? results.jobs
-        : results?.data
-        ? results.data
-        : [];
-
-      setJobs(jobsArray);
-
-      toast({
-        title: "Quick search completed",
-        description: `Found ${jobsArray.length} jobs with quick search (limited details)`,
-        status: "success",
-        duration: 4000,
-        isClosable: true,
-      });
-    } catch (err) {
-      console.error("❌ Quick search failed:", err);
-
-      let errorMessage = "Quick search failed. " + err.message;
-      setError(errorMessage);
-      setJobs([]);
-
-      toast({
-        title: "Quick search failed",
-        description: errorMessage,
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Search jobs with retry mechanism
   const handleSearch = async (isRetry = false) => {
@@ -187,15 +107,15 @@ const JobsPage = () => {
     setError(null);
 
     try {
-      console.log("🔍 Starting job search with params:", searchParams);
-      console.log("🔑 Authentication state:", {
+      console.log("[SEARCH] Starting job search with params:", searchParams);
+      console.log("[AUTH] Authentication state:", {
         isAuthenticated,
         hasAccessToken: !!localStorage.getItem("access_token"),
         user: user?.email,
       });
 
       const results = await jobsAPI.searchJobs(searchParams);
-      console.log("✅ Search results received:", results);
+      console.log("[SUCCESS] Search results received:", results);
 
       // Ensure results is an array
       const jobsArray = Array.isArray(results)
@@ -206,11 +126,11 @@ const JobsPage = () => {
         ? results.data
         : [];
 
-      console.log("📋 Processed jobs array:", jobsArray.length, "jobs");
+      console.log("[PROCESS] Processed jobs array:", jobsArray.length, "jobs");
       setJobs(jobsArray);
       setRetryCount(0); // Reset retry count on success
     } catch (err) {
-      console.error("❌ Search failed:", {
+      console.error("[ERROR] Search failed:", {
         message: err.message,
         code: err.code,
         status: err.response?.status,
@@ -342,7 +262,7 @@ const JobsPage = () => {
         duration:
           err.code === "ECONNABORTED" || err.message.includes("timeout")
             ? 8000
-            : 5000, // Longer duration for timeout errors
+            : 5000,
         isClosable: true,
       });
     } finally {
@@ -432,11 +352,8 @@ const JobsPage = () => {
             Find your next opportunity and track your applications
           </Text>
           <Text fontSize="sm" color="gray.500">
-            💡 Job searches may take 30-45 seconds as we fetch fresh
-            opportunities from external job boards
-          </Text>
-          <Text fontSize="sm" color="blue.500" mt={1}>
-            ⚡ Use "Quick" search for faster results with basic job details
+            💡 Fast job searches fetch fresh opportunities from external job
+            boards
           </Text>
         </Box>
 
@@ -537,30 +454,18 @@ const JobsPage = () => {
                 </SimpleGrid>
 
                 {/* Search Button */}
-                <HStack spacing={3} w={{ base: "full", md: "auto" }}>
-                  <Button
-                    colorScheme="brand"
-                    size="lg"
-                    leftIcon={<Icon as={FiSearch} />}
-                    onClick={handleSearch}
-                    isLoading={loading}
-                    loadingText="Fetching jobs from external sources..."
-                    flex={1}
-                    isDisabled={!isAuthenticated}
-                  >
-                    Search Jobs
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    onClick={() => handleQuickSearch()}
-                    isLoading={loading}
-                    isDisabled={!isAuthenticated}
-                    title="Quick search with fewer details"
-                  >
-                    Quick
-                  </Button>
-                </HStack>
+                <Button
+                  colorScheme="brand"
+                  size="lg"
+                  leftIcon={<Icon as={FiSearch} />}
+                  onClick={handleSearch}
+                  isLoading={loading}
+                  loadingText="Searching for jobs..."
+                  w={{ base: "full", md: "auto" }}
+                  isDisabled={!isAuthenticated}
+                >
+                  Search Jobs
+                </Button>
               </VStack>
             </CardBody>
           </Card>
@@ -570,15 +475,7 @@ const JobsPage = () => {
         {error && (
           <Alert status="error">
             <AlertIcon />
-            <VStack align="start" spacing={2} flex={1}>
-              <Text>{error}</Text>
-              {error.includes("timeout") && (
-                <Text fontSize="sm" color="gray.600">
-                  💡 Try the "Quick" search button for faster results with
-                  limited details.
-                </Text>
-              )}
-            </VStack>
+            <Text>{error}</Text>
           </Alert>
         )}
 
@@ -587,10 +484,10 @@ const JobsPage = () => {
           <Flex justify="center" py={8} direction="column" align="center">
             <Spinner size="xl" color="brand.500" mb={4} />
             <Text color="gray.600" fontSize="sm" textAlign="center">
-              Fetching fresh job opportunities from external sources...
+              Searching for job opportunities...
             </Text>
             <Text color="gray.500" fontSize="xs" mt={2}>
-              This may take up to 45 seconds
+              This should be quick!
             </Text>
           </Flex>
         )}

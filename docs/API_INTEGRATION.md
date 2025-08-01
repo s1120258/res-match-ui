@@ -261,6 +261,78 @@ const deleteJob = async (jobId) => {
 };
 ```
 
+### 8. Get Saved Job Summary
+
+```javascript
+// GET /jobs/{job_id}/summary
+const getJobSummary = async (jobId, maxLength = 150) => {
+  const response = await axios.get(`/jobs/${jobId}/summary`, {
+    params: {
+      max_length: maxLength, // Maximum length of summary in words (50-300)
+    },
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  return response.data;
+};
+
+// Response Format
+{
+  "original_length": 1200,
+  "summary": "Software Engineer position at Tech Corp focusing on full-stack development...",
+  "summary_length": 145,
+  "key_points": [
+    "Full-stack development with React and Node.js",
+    "Remote work opportunity available",
+    "Competitive salary 5M-8M JPY",
+    "3+ years experience required"
+  ],
+  "generated_at": "2023-01-01T12:00:00Z"
+}
+```
+
+### 9. Generate Job Summary
+
+```javascript
+// POST /jobs/summary
+const generateJobSummary = async (jobData) => {
+  const response = await axios.post('/jobs/summary', {
+    job_description: jobData.job_description,
+    job_title: jobData.job_title,
+    company_name: jobData.company_name,
+    max_length: jobData.max_length || 150  // Optional, default: 150
+  }, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  return response.data;
+};
+
+// Request Example
+const jobSummaryRequest = {
+  job_description: "We are seeking a talented Software Engineer to join our dynamic team...",
+  job_title: "Senior Frontend Developer",
+  company_name: "Tech Innovations Corp",
+  max_length: 200
+};
+
+// Response Format
+{
+  "original_length": 2500,
+  "summary": "Senior Frontend Developer role at Tech Innovations Corp. Build modern web applications using React, TypeScript, and modern tools...",
+  "summary_length": 198,
+  "key_points": [
+    "Frontend development with React and TypeScript",
+    "Modern development tools and practices",
+    "Collaborative team environment",
+    "Growth opportunities in emerging technologies"
+  ],
+  "generated_at": "2023-01-01T12:00:00Z"
+}
+```
+
 ## 📄 Resume Management API
 
 ### 1. Resume Upload

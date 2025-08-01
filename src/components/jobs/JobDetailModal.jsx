@@ -80,43 +80,30 @@ const JobDetailModal = ({ isOpen, onClose, job, onSave, onApply }) => {
       setLoading(false);
       setSummaryLoading(false);
 
-      // Load new data
-      if (job?.id) {
-        loadJobDetails();
-      }
-      // Load summary for both saved and unsaved jobs
-      loadJobSummary(job);
+      // Load new data with priority order
+      loadJobDataWithPriority();
     }
   }, [isOpen, job]);
 
-  const loadJobDetails = async () => {
+  const loadJobDataWithPriority = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      // Load basic job details if we have an ID
-      if (job.id) {
+      // Step 1: Load basic job details first
+      if (job?.id) {
         const details = await jobsAPI.getJob(job.id);
         setJobDetails(details);
-
-        // Try to load match score and skill gap analysis
-        try {
-          const matchData = await jobsAPI.getMatchScore(job.id);
-          setMatchScore(matchData);
-        } catch (err) {
-          console.log("Match score not available:", err.message);
-        }
-
-        try {
-          const skillData = await jobsAPI.getSkillGapAnalysis(job.id);
-          setSkillGapAnalysis(skillData);
-        } catch (err) {
-          console.log("Skill gap analysis not available:", err.message);
-        }
       } else {
         // Use the job data we already have
         setJobDetails(job);
       }
+
+      // Step 2: Load AI summary first (priority)
+      await loadJobSummary(job);
+
+      // Step 3: Start skill-related APIs in background
+      loadSkillRelatedAPIs();
     } catch (err) {
       setError(err.message);
       toast({
@@ -131,10 +118,29 @@ const JobDetailModal = ({ isOpen, onClose, job, onSave, onApply }) => {
     }
   };
 
+  const loadSkillRelatedAPIs = async () => {
+    if (!job?.id) return;
+
+    // Load skill APIs in parallel
+    try {
+      const matchData = await jobsAPI.getMatchScore(job.id);
+      setMatchScore(matchData);
+    } catch (err) {
+      console.log("Match score not available:", err.message);
+    }
+
+    try {
+      const skillData = await jobsAPI.getSkillGapAnalysis(job.id);
+      setSkillGapAnalysis(skillData);
+    } catch (err) {
+      console.log("Skill gap analysis not available:", err.message);
+    }
+  };
+
   // Load job summary
   const loadJobSummary = async (currentJob) => {
     if (!currentJob) {
-      console.log("[SUMMARY] No job provided, skipping summary");
+      console.log("No job provided, skipping summary");
       return;
     }
 
@@ -146,21 +152,9 @@ const JobDetailModal = ({ isOpen, onClose, job, onSave, onApply }) => {
 
       if (currentJob?.id) {
         // Job is saved - use GET endpoint
-        console.log(
-          "[SUMMARY] Loading summary for saved job:",
-          currentJob.id,
-          "Title:",
-          currentJob.title
-        );
         summaryData = await jobsAPI.getJobSummary(currentJob.id);
       } else {
         // Job is from search results - use POST endpoint
-        console.log(
-          "[SUMMARY] Generating summary for unsaved job. Title:",
-          currentJob.title,
-          "Company:",
-          currentJob.company
-        );
         summaryData = await jobsAPI.generateJobSummary({
           job_description: currentJob.description,
           job_title: currentJob.title,
@@ -170,13 +164,9 @@ const JobDetailModal = ({ isOpen, onClose, job, onSave, onApply }) => {
       }
 
       setJobSummary(summaryData);
-      console.log(
-        "[SUMMARY] Summary loaded successfully for:",
-        currentJob.title
-      );
     } catch (err) {
       console.error(
-        "[ERROR] Summary loading failed for:",
+        "Summary loading failed for:",
         currentJob.title,
         "Error:",
         err.message
@@ -259,16 +249,6 @@ const JobDetailModal = ({ isOpen, onClose, job, onSave, onApply }) => {
   };
 
   const displayJob = jobDetails || job;
-
-  // Debug logging to track which job is being displayed
-  console.log("[MODAL] Displaying job:", {
-    modalOpen: isOpen,
-    jobTitle: displayJob?.title,
-    jobCompany: displayJob?.company,
-    jobId: displayJob?.id,
-    isJobDetails: !!jobDetails,
-    isOriginalJob: !jobDetails && !!job,
-  });
 
   if (!displayJob) return null;
 

@@ -15,7 +15,7 @@ export const uploadResume = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await apiClient.post("/resume", formData, {
+    const response = await apiClient.post("/api/v1/resume", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -34,7 +34,7 @@ export const uploadResume = async (file) => {
  */
 export const getResume = async () => {
   try {
-    const response = await apiClient.get("/resume");
+    const response = await apiClient.get("/api/v1/resume");
     return response.data;
   } catch (error) {
     if (error.response?.status === 404) {
@@ -52,7 +52,7 @@ export const getResume = async () => {
  */
 export const deleteResume = async () => {
   try {
-    const response = await apiClient.delete("/resume");
+    const response = await apiClient.delete("/api/v1/resume");
     return response.data;
   } catch (error) {
     console.error("Resume deletion failed:", error);
@@ -66,7 +66,7 @@ export const deleteResume = async () => {
  */
 export const getResumeGeneralFeedback = async () => {
   try {
-    const response = await apiClient.get("/resume/feedback");
+    const response = await apiClient.get("/api/v1/resume/feedback");
     return response.data;
   } catch (error) {
     console.error("Failed to get resume feedback:", error);
@@ -81,7 +81,7 @@ export const getResumeGeneralFeedback = async () => {
  */
 export const getResumeJobSpecificFeedback = async (jobId) => {
   try {
-    const response = await apiClient.get(`/resume/feedback/${jobId}`);
+    const response = await apiClient.get(`/api/v1/resume/feedback/${jobId}`);
     return response.data;
   } catch (error) {
     console.error("Failed to get job-specific resume feedback:", error);
@@ -95,7 +95,7 @@ export const getResumeJobSpecificFeedback = async (jobId) => {
  */
 export const extractResumeSkills = async () => {
   try {
-    const response = await apiClient.get("/resume/skills");
+    const response = await apiClient.get("/api/v1/resume/skills");
     return response.data;
   } catch (error) {
     console.error("Failed to extract resume skills:", error);

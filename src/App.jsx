@@ -19,6 +19,8 @@ import RegisterPage from "./pages/auth/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import JobsPage from "./pages/JobsPage";
 import JobDetailPage from "./pages/JobDetailPage";
+import ResumePage from "./pages/ResumePage";
+import ResumeFeedbackPage from "./pages/ResumeFeedbackPage";
 
 // Placeholder components for routes that aren't implemented yet
 const PlaceholderPage = ({ title }) => (
@@ -77,7 +79,18 @@ function App() {
               element={
                 <ProtectedRoute>
                   <AppLayout>
-                    <PlaceholderPage title="Resume Management" />
+                    <ResumePage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/resume/feedback"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <ResumeFeedbackPage />
                   </AppLayout>
                 </ProtectedRoute>
               }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Card,
@@ -57,6 +57,103 @@ const ResumeFeedback = ({ resumeExists, jobId = null }) => {
   const [jobSpecificError, setJobSpecificError] = useState(null);
   const toast = useToast();
 
+  // Debug logging
+  console.log("ResumeFeedback props:", { resumeExists, jobId });
+
+  // Transform job-specific feedback data to expected format
+  const transformJobSpecificFeedback = (apiResponse, jobId) => {
+    if (!apiResponse || !apiResponse.job_specific_feedback) {
+      return null;
+    }
+
+    const feedbackArray = apiResponse.job_specific_feedback;
+    const jobTitle = apiResponse.job_description_excerpt || "Job Position";
+
+    // Initialize the transformed object
+    const transformed = {
+      job_id: jobId,
+      job_title: jobTitle,
+      match_percentage: 75, // Default, will be calculated
+      feedback: "",
+      matching_skills: [],
+      missing_skills: [],
+      suggestions: [],
+    };
+
+    // Process each feedback item
+    feedbackArray.forEach((item) => {
+      if (typeof item === "string") {
+        // Parse the markdown-style feedback
+        if (item.includes("**Skills Alignment:**")) {
+          // Extract matching skills
+          const skillsText = item.toLowerCase();
+          const potentialSkills = [
+            "python",
+            "django",
+            "postgresql",
+            "celery",
+            "redis",
+            "javascript",
+            "react",
+            "typescript",
+            "node.js",
+          ];
+          potentialSkills.forEach((skill) => {
+            if (skillsText.includes(skill.toLowerCase())) {
+              transformed.matching_skills.push(skill);
+            }
+          });
+
+          // Estimate match percentage based on skills alignment tone
+          if (item.includes("align well")) {
+            transformed.match_percentage = 80;
+          } else if (item.includes("partially") || item.includes("some")) {
+            transformed.match_percentage = 65;
+          }
+
+          transformed.feedback += item + "\n\n";
+        } else if (item.includes("**Missing Qualifications:**")) {
+          // Extract missing skills/qualifications
+          if (item.includes("scraping")) {
+            transformed.missing_skills.push("Web Scraping");
+          }
+          if (item.includes("lacks direct mention")) {
+            transformed.match_percentage = Math.min(
+              transformed.match_percentage,
+              70
+            );
+          }
+
+          transformed.feedback += item + "\n\n";
+        } else if (
+          item.includes("**Experience Relevance:**") ||
+          item.includes("**Highlight Relevant Achievements:**") ||
+          item.includes("**Specific Improvements:**")
+        ) {
+          // Extract suggestions
+          const cleanSuggestion = item.replace(/\*\*[^*]+:\*\*\s*/, "").trim();
+          if (cleanSuggestion) {
+            transformed.suggestions.push(cleanSuggestion);
+          }
+
+          transformed.feedback += item + "\n\n";
+        } else {
+          // Any other feedback text
+          transformed.feedback += item + "\n\n";
+        }
+      }
+    });
+
+    // Clean up feedback text
+    transformed.feedback = transformed.feedback.trim();
+
+    // Remove duplicates
+    transformed.matching_skills = [...new Set(transformed.matching_skills)];
+    transformed.missing_skills = [...new Set(transformed.missing_skills)];
+
+    return transformed;
+  };
+
   // Load general feedback
   const loadGeneralFeedback = async () => {
     if (!resumeExists) return;
@@ -102,15 +199,25 @@ const ResumeFeedback = ({ resumeExists, jobId = null }) => {
   };
 
   // Load job-specific feedback
-  const loadJobSpecificFeedback = async () => {
-    if (!resumeExists || !jobId) return;
+  const loadJobSpecificFeedback = useCallback(async () => {
+    console.log("loadJobSpecificFeedback called:", { resumeExists, jobId });
+    if (!resumeExists || !jobId) {
+      console.log("Skipping job-specific feedback: missing requirements");
+      return;
+    }
 
+    console.log("Loading job-specific feedback for jobId:", jobId);
     setIsLoadingJobSpecific(true);
     setJobSpecificError(null);
 
     try {
       const result = await getResumeJobSpecificFeedback(jobId);
-      setJobSpecificFeedback(result);
+      console.log("Job-specific feedback received:", result);
+
+      // Transform the API response to match expected format
+      const transformedFeedback = transformJobSpecificFeedback(result, jobId);
+      console.log("Transformed feedback:", transformedFeedback);
+      setJobSpecificFeedback(transformedFeedback);
     } catch (error) {
       console.error("Failed to get job-specific feedback:", error);
 
@@ -131,7 +238,7 @@ const ResumeFeedback = ({ resumeExists, jobId = null }) => {
     } finally {
       setIsLoadingJobSpecific(false);
     }
-  };
+  }, [resumeExists, jobId, toast]);
 
   // Load feedback on component mount
   useEffect(() => {
@@ -139,10 +246,31 @@ const ResumeFeedback = ({ resumeExists, jobId = null }) => {
   }, [resumeExists]);
 
   useEffect(() => {
-    if (jobId) {
+    console.log("useEffect for job-specific feedback triggered:", {
+      resumeExists,
+      jobId,
+    });
+    if (resumeExists && jobId) {
+      console.log("Calling loadJobSpecificFeedback...");
+      loadJobSpecificFeedback();
+    } else {
+      console.log("Requirements not met:", { resumeExists, jobId });
+    }
+  }, [resumeExists, jobId, loadJobSpecificFeedback]);
+
+  // Force trigger when component mounts with jobId
+  useEffect(() => {
+    console.log("Component mounted or jobId changed:", { resumeExists, jobId });
+    if (
+      resumeExists &&
+      jobId &&
+      !jobSpecificFeedback &&
+      !isLoadingJobSpecific
+    ) {
+      console.log("Force triggering job-specific feedback load...");
       loadJobSpecificFeedback();
     }
-  }, [resumeExists, jobId]);
+  }, [jobId]);
 
   // Get score color
   const getScoreColor = (score) => {
@@ -376,6 +504,25 @@ const ResumeFeedback = ({ resumeExists, jobId = null }) => {
 
   // Render job-specific feedback tab
   const renderJobSpecificFeedback = () => {
+    console.log("renderJobSpecificFeedback called with state:", {
+      resumeExists,
+      jobId,
+      jobSpecificFeedback,
+      isLoadingJobSpecific,
+      jobSpecificError,
+    });
+
+    // Debug: Log the structure of transformed data
+    if (jobSpecificFeedback?.job_title) {
+      console.log("Transformed job-specific feedback:", {
+        job_title: jobSpecificFeedback.job_title,
+        match_percentage: jobSpecificFeedback.match_percentage,
+        matching_skills: jobSpecificFeedback.matching_skills,
+        missing_skills: jobSpecificFeedback.missing_skills,
+        suggestions_count: jobSpecificFeedback.suggestions?.length,
+      });
+    }
+
     if (!resumeExists || !jobId) {
       return (
         <VStack spacing={4} py={8}>
@@ -436,6 +583,7 @@ const ResumeFeedback = ({ resumeExists, jobId = null }) => {
               colorScheme="blue"
               leftIcon={<Icon as={FiRefreshCw} />}
               onClick={loadJobSpecificFeedback}
+              isLoading={isLoadingJobSpecific}
             >
               Generate Job Feedback
             </Button>

@@ -81,10 +81,13 @@ export const getResumeGeneralFeedback = async () => {
  */
 export const getResumeJobSpecificFeedback = async (jobId) => {
   try {
+    console.log("API: Getting job-specific feedback for jobId:", jobId);
     const response = await apiClient.get(`/api/v1/resume/feedback/${jobId}`);
+    console.log("API: Job-specific feedback response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Failed to get job-specific resume feedback:", error);
+    console.error("Error details:", error.response?.data);
     throw error;
   }
 };

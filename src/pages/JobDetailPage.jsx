@@ -167,6 +167,7 @@ const JobDetailPage = () => {
   const checkResumeExists = async () => {
     try {
       const exists = await hasResume();
+      console.log("JobDetailPage: Resume exists check:", exists);
       setResumeExists(exists);
     } catch (err) {
       console.log("Resume check failed:", err.message);
@@ -799,7 +800,18 @@ const JobDetailPage = () => {
                 {/* Resume Feedback Tab */}
                 {resumeExists && (
                   <TabPanel px={0}>
-                    <ResumeFeedback resumeExists={resumeExists} jobId={id} />
+                    {(() => {
+                      console.log(
+                        "JobDetailPage: Rendering ResumeFeedback with:",
+                        { resumeExists, jobId: id }
+                      );
+                      return (
+                        <ResumeFeedback
+                          resumeExists={resumeExists}
+                          jobId={id}
+                        />
+                      );
+                    })()}
                   </TabPanel>
                 )}
 

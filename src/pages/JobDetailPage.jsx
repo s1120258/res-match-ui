@@ -945,7 +945,8 @@ const JobDetailPage = () => {
                                             <Icon
                                               as={FiCalendar}
                                               color="gray.400"
-                                              size="sm"
+                                              w={4}
+                                              h={4}
                                             />
                                             <Text
                                               fontSize="xs"

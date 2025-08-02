@@ -274,7 +274,7 @@ const JobDetailModal = ({ isOpen, onClose, job, onSave, onApply }) => {
                 <>
                   <Text color="gray.400">•</Text>
                   <HStack spacing={1}>
-                    <Icon as={FiMapPin} color="gray.500" size="sm" />
+                    <Icon as={FiMapPin} color="gray.500" w={4} h={4} />
                     <Text color="gray.600" fontSize="sm">
                       {displayJob.location}
                     </Text>

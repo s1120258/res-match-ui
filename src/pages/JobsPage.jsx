@@ -601,7 +601,7 @@ const JobCard = ({ job, onSave, isSaving, showSaveButton, onClick }) => {
                 <>
                   <Text color="gray.400">•</Text>
                   <HStack spacing={1}>
-                    <Icon as={FiMapPin} color="gray.400" size="sm" />
+                    <Icon as={FiMapPin} color="gray.400" w={4} h={4} />
                     <Text color="gray.600" fontSize="sm">
                       {job.location}
                     </Text>
@@ -635,7 +635,7 @@ const JobCard = ({ job, onSave, isSaving, showSaveButton, onClick }) => {
             <HStack spacing={4}>
               {job.date && (
                 <HStack spacing={1}>
-                  <Icon as={FiClock} color="gray.400" size="sm" />
+                  <Icon as={FiClock} color="gray.400" w={4} h={4} />
                   <Text fontSize="xs" color="gray.500">
                     {new Date(job.date || job.date_posted).toLocaleDateString()}
                   </Text>
@@ -644,7 +644,7 @@ const JobCard = ({ job, onSave, isSaving, showSaveButton, onClick }) => {
 
               {job.match_score && (
                 <HStack spacing={1}>
-                  <Icon as={FiStar} color="yellow.400" size="sm" />
+                  <Icon as={FiStar} color="yellow.400" w={4} h={4} />
                   <Text fontSize="xs" color="gray.600">
                     {Math.round(job.match_score * 100)}% match
                   </Text>

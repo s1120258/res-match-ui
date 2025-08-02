@@ -28,18 +28,20 @@ graph TD
 
 ```mermaid
 graph TD
-    A[Dashboard] --> B[Job Search]
-    B --> C[Search Results List]
-    C --> D[Job Details]
-    D --> E{Interested?}
-    E -->|Yes| F[Save Job]
-    E -->|No| C
-    F --> G[Check Match Score]
-    G --> H[Skill Gap Analysis]
-    H --> I[Resume Feedback]
-    I --> J{Apply?}
-    J -->|Yes| K[Mark as Applied]
-    J -->|No| L[Return to Saved List]
+    A[Dashboard] --> B[Jobs Page]
+    B --> C[Search Jobs]
+    C --> D[Search Results List]
+    D --> E[Quick Preview Modal]
+    E --> F[AI Job Summary]
+    F --> G{Interested?}
+    G -->|Yes| H[Save Job]
+    G -->|No| D
+    H --> I[Full Job Details Page]
+    I --> J[Check Match Score]
+    J --> K[Skill Gap Analysis]
+    K --> L{Apply?}
+    L -->|Yes| M[Mark as Applied]
+    L -->|No| N[Return to Saved List]
 ```
 
 ### 3. Resume Improvement Flow
@@ -66,10 +68,11 @@ graph TD
 
 2. **Job Management** (`/jobs`)
 
-   - Search screen (`/jobs/search`)
-   - List screen (`/jobs` + filters)
+   - Integrated search & list screen (`/jobs` with search functionality)
+   - Quick preview modal (for search results)
    - Detail screen (`/jobs/:id`)
-   - Match analysis (`/jobs/:id/analysis`)
+   - AI-powered job summaries
+   - Match analysis (integrated in detail screen tabs)
 
 3. **Resume Management** (`/resume`)
 
@@ -88,14 +91,35 @@ graph TD
    - Notification settings
    - Account management
 
+## 🤖 AI-Enhanced Features
+
+### Job Summary Generation Flow
+
+```mermaid
+graph TD
+    A[Job Search Results] --> B[Click Job Card]
+    B --> C[Modal Opens]
+    C --> D[Basic Job Info Loads ~0.3s]
+    D --> E[AI Summary API Call]
+    E --> F[Display AI Summary]
+    F --> G[Parallel: Match Score & Skill Analysis]
+```
+
+### Performance Optimization Strategy
+
+- **Progressive Loading**: Basic info → AI summary → detailed analysis
+- **Parallel API Calls**: Independent APIs run simultaneously
+- **Modal Preview**: Quick job overview before full page navigation
+- **Error Handling**: Graceful fallbacks with retry mechanisms
+
 ## 🔄 State Management Flow
 
 ### Job Status Transitions
 
 ```
-Unsaved → Saved → Applied
-            ↓
-         Matched
+Search Results → Quick Preview → Saved → Applied
+                      ↓              ↓
+                 AI Summary      Matched
 ```
 
 ### Data Flow

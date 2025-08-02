@@ -37,6 +37,7 @@ import ResumeUpload from "../components/resume/ResumeUpload";
 import ResumeDisplay from "../components/resume/ResumeDisplay";
 import ResumeSkills from "../components/resume/ResumeSkills";
 import ResumeFeedback from "../components/resume/ResumeFeedback";
+import ErrorBoundary from "../components/common/ErrorBoundary";
 
 // Import resume service
 import { getResume } from "../services/resume";
@@ -157,13 +158,21 @@ const ResumePage = () => {
       id: "skills",
       label: "Skills",
       icon: FiCode,
-      component: <ResumeSkills resumeExists={resumeExists} />,
+      component: (
+        <ErrorBoundary>
+          <ResumeSkills resumeExists={resumeExists} />
+        </ErrorBoundary>
+      ),
     },
     {
       id: "feedback",
       label: "Feedback",
       icon: FiMessageSquare,
-      component: <ResumeFeedback resumeExists={resumeExists} />,
+      component: (
+        <ErrorBoundary>
+          <ResumeFeedback resumeExists={resumeExists} />
+        </ErrorBoundary>
+      ),
     },
   ];
 

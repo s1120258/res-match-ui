@@ -17,7 +17,24 @@ apiClient.interceptors.request.use(
       const token = localStorage.getItem("access_token");
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+        console.log(
+          `API Request: ${config.method?.toUpperCase()} ${
+            config.url
+          } with auth token`
+        );
+      } else {
+        console.warn(
+          `API Request: ${config.method?.toUpperCase()} ${
+            config.url
+          } - NO AUTH TOKEN FOUND`
+        );
       }
+      console.log("API Request config:", {
+        url: config.url,
+        method: config.method,
+        headers: config.headers,
+        baseURL: config.baseURL,
+      });
     } catch (error) {
       console.error("Error getting token from localStorage:", error);
     }
@@ -31,7 +48,15 @@ apiClient.interceptors.request.use(
 
 // Response interceptor (automatic token refresh)
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log(
+      `API Response: ${
+        response.status
+      } ${response.config.method?.toUpperCase()} ${response.config.url}`
+    );
+    console.log("API Response data:", response.data);
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
 

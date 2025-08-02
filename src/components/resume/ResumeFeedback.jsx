@@ -59,16 +59,42 @@ const ResumeFeedback = ({ resumeExists, jobId = null }) => {
 
   // Load general feedback
   const loadGeneralFeedback = async () => {
-    if (!resumeExists) return;
+    if (!resumeExists) {
+      console.log("ResumeFeedback: No resume exists, skipping feedback load");
+      return;
+    }
 
+    console.log("ResumeFeedback: Starting to load general feedback...");
     setIsLoadingGeneral(true);
     setGeneralError(null);
 
     try {
+      console.log("ResumeFeedback: Calling getResumeGeneralFeedback API...");
       const result = await getResumeGeneralFeedback();
-      setGeneralFeedback(result);
+      console.log("ResumeFeedback: General feedback received:", result);
+
+      // Transform the API response to match expected format
+      const transformedFeedback = {
+        overall_score: 85, // Default score since API doesn't provide it
+        feedback: result.general_feedback
+          ? result.general_feedback.join(" ")
+          : "No feedback available",
+        suggestions: result.general_feedback || [],
+        strengths: [], // Will be populated from feedback if available
+        areas_for_improvement: [], // Will be populated from feedback if available
+      };
+
+      console.log("ResumeFeedback: Transformed feedback:", transformedFeedback);
+      setGeneralFeedback(transformedFeedback);
     } catch (error) {
-      console.error("Failed to get general feedback:", error);
+      console.error("ResumeFeedback: Failed to get general feedback:", error);
+      console.error("ResumeFeedback: Error details:", {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        headers: error.response?.headers,
+        config: error.config,
+      });
 
       const errorMessage =
         error.response?.data?.detail ||
@@ -79,9 +105,11 @@ const ResumeFeedback = ({ resumeExists, jobId = null }) => {
 
       toast({
         title: "Failed to get feedback",
-        description: errorMessage,
+        description: `${errorMessage} (Status: ${
+          error.response?.status || "Unknown"
+        })`,
         status: "error",
-        duration: 5000,
+        duration: 10000,
         isClosable: true,
       });
     } finally {
@@ -207,13 +235,20 @@ const ResumeFeedback = ({ resumeExists, jobId = null }) => {
             <Text fontSize="md" fontWeight="semibold" color="gray.600">
               No feedback available
             </Text>
-            <Button
-              colorScheme="blue"
-              leftIcon={<Icon as={FiRefreshCw} />}
-              onClick={loadGeneralFeedback}
-            >
-              Generate Feedback
-            </Button>
+            <VStack spacing={2}>
+              <Button
+                colorScheme="blue"
+                leftIcon={<Icon as={FiRefreshCw} />}
+                onClick={loadGeneralFeedback}
+                isLoading={isLoadingGeneral}
+                loadingText="Generating..."
+              >
+                Generate Feedback
+              </Button>
+              <Text fontSize="xs" color="gray.500">
+                Debug: Check browser console for API call details
+              </Text>
+            </VStack>
           </VStack>
         </VStack>
       );

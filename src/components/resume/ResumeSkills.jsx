@@ -71,16 +71,264 @@ const ResumeSkills = ({ resumeExists }) => {
 
   // Load skills data
   const loadSkills = async () => {
-    if (!resumeExists) return;
+    if (!resumeExists) {
+      console.log("ResumeSkills: No resume exists, skipping skills extraction");
+      return;
+    }
 
+    console.log("ResumeSkills: Starting to extract skills...");
     setIsLoading(true);
     setError(null);
 
     try {
+      console.log("ResumeSkills: Calling extractResumeSkills API...");
       const result = await extractResumeSkills();
-      setSkills(result);
+      console.log("ResumeSkills: Skills extracted successfully:", result);
+
+      // Transform the API response to match expected format
+      const transformedSkills = {
+        extracted_skills: [],
+      };
+
+      if (result.skills_data) {
+        const skillsData = result.skills_data;
+
+        // Helper function to extract skill name and details from object or string
+        const extractSkillInfo = (
+          skillItem,
+          defaultCategory,
+          defaultConfidence
+        ) => {
+          let skillName = "";
+          let skillContext = `${defaultCategory} extracted from resume`;
+          let skillConfidence = defaultConfidence;
+
+          if (typeof skillItem === "string") {
+            skillName = skillItem.trim();
+          } else if (typeof skillItem === "object" && skillItem !== null) {
+            // Handle object format: {name, level, years_experience, evidence}
+            skillName = skillItem.name || skillItem.skill || "";
+
+            // Build enhanced context from object properties
+            const contextParts = [];
+            if (skillItem.level) {
+              contextParts.push(`Level: ${skillItem.level}`);
+            }
+            if (skillItem.years_experience) {
+              contextParts.push(
+                `Experience: ${skillItem.years_experience} years`
+              );
+            }
+            if (skillItem.evidence) {
+              contextParts.push(`Evidence: ${skillItem.evidence}`);
+            }
+
+            if (contextParts.length > 0) {
+              skillContext = contextParts.join(", ");
+            }
+
+            // Adjust confidence based on level if available
+            if (skillItem.level) {
+              const level = skillItem.level.toLowerCase();
+              if (level.includes("expert") || level.includes("advanced")) {
+                skillConfidence = Math.min(0.98, defaultConfidence + 0.1);
+              } else if (level.includes("intermediate")) {
+                skillConfidence = defaultConfidence;
+              } else if (
+                level.includes("beginner") ||
+                level.includes("basic")
+              ) {
+                skillConfidence = Math.max(0.6, defaultConfidence - 0.2);
+              }
+            }
+          }
+
+          return { skillName, skillContext, skillConfidence };
+        };
+
+        // Convert technical_skills
+        if (
+          skillsData.technical_skills &&
+          Array.isArray(skillsData.technical_skills)
+        ) {
+          skillsData.technical_skills.forEach((skillItem) => {
+            const { skillName, skillContext, skillConfidence } =
+              extractSkillInfo(skillItem, "Technology", 0.9);
+
+            if (skillName && skillName.trim()) {
+              transformedSkills.extracted_skills.push({
+                skill: skillName.trim(),
+                category: "Technology",
+                confidence: skillConfidence,
+                context: skillContext,
+              });
+            }
+          });
+        }
+
+        // Convert programming_languages
+        if (
+          skillsData.programming_languages &&
+          Array.isArray(skillsData.programming_languages)
+        ) {
+          skillsData.programming_languages.forEach((skillItem) => {
+            const { skillName, skillContext, skillConfidence } =
+              extractSkillInfo(skillItem, "Programming Language", 0.95);
+
+            if (skillName && skillName.trim()) {
+              transformedSkills.extracted_skills.push({
+                skill: skillName.trim(),
+                category: "Programming Language",
+                confidence: skillConfidence,
+                context: skillContext,
+              });
+            }
+          });
+        }
+
+        // Convert frameworks
+        if (skillsData.frameworks && Array.isArray(skillsData.frameworks)) {
+          skillsData.frameworks.forEach((skillItem) => {
+            const { skillName, skillContext, skillConfidence } =
+              extractSkillInfo(skillItem, "Framework", 0.9);
+
+            if (skillName && skillName.trim()) {
+              transformedSkills.extracted_skills.push({
+                skill: skillName.trim(),
+                category: "Framework",
+                confidence: skillConfidence,
+                context: skillContext,
+              });
+            }
+          });
+        }
+
+        // Convert soft_skills
+        if (skillsData.soft_skills && Array.isArray(skillsData.soft_skills)) {
+          skillsData.soft_skills.forEach((skillItem) => {
+            const { skillName, skillContext, skillConfidence } =
+              extractSkillInfo(skillItem, "Soft Skill", 0.8);
+
+            if (skillName && skillName.trim()) {
+              transformedSkills.extracted_skills.push({
+                skill: skillName.trim(),
+                category: "Soft Skill",
+                confidence: skillConfidence,
+                context: skillContext,
+              });
+            }
+          });
+        }
+
+        // Convert certifications
+        if (
+          skillsData.certifications &&
+          Array.isArray(skillsData.certifications)
+        ) {
+          skillsData.certifications.forEach((skillItem) => {
+            const { skillName, skillContext, skillConfidence } =
+              extractSkillInfo(skillItem, "Certification", 0.95);
+
+            if (skillName && skillName.trim()) {
+              transformedSkills.extracted_skills.push({
+                skill: skillName.trim(),
+                category: "Certification",
+                confidence: skillConfidence,
+                context: skillContext,
+              });
+            }
+          });
+        }
+
+        // Convert tools (if available)
+        if (skillsData.tools && Array.isArray(skillsData.tools)) {
+          skillsData.tools.forEach((skillItem) => {
+            const { skillName, skillContext, skillConfidence } =
+              extractSkillInfo(skillItem, "Tool", 0.85);
+
+            if (skillName && skillName.trim()) {
+              transformedSkills.extracted_skills.push({
+                skill: skillName.trim(),
+                category: "Tool",
+                confidence: skillConfidence,
+                context: skillContext,
+              });
+            }
+          });
+        }
+
+        // Convert databases (if available)
+        if (skillsData.databases && Array.isArray(skillsData.databases)) {
+          skillsData.databases.forEach((skillItem) => {
+            const { skillName, skillContext, skillConfidence } =
+              extractSkillInfo(skillItem, "Database", 0.9);
+
+            if (skillName && skillName.trim()) {
+              transformedSkills.extracted_skills.push({
+                skill: skillName.trim(),
+                category: "Database",
+                confidence: skillConfidence,
+                context: skillContext,
+              });
+            }
+          });
+        }
+
+        // Handle any other skill categories not explicitly handled above
+        const handledCategories = [
+          "technical_skills",
+          "programming_languages",
+          "frameworks",
+          "soft_skills",
+          "certifications",
+          "tools",
+          "databases",
+        ];
+        Object.keys(skillsData).forEach((categoryKey) => {
+          if (
+            !handledCategories.includes(categoryKey) &&
+            Array.isArray(skillsData[categoryKey])
+          ) {
+            skillsData[categoryKey].forEach((skillItem) => {
+              const { skillName, skillContext, skillConfidence } =
+                extractSkillInfo(skillItem, "Other", 0.8);
+
+              if (skillName && skillName.trim()) {
+                transformedSkills.extracted_skills.push({
+                  skill: skillName.trim(),
+                  category: "Other",
+                  confidence: skillConfidence,
+                  context: skillContext,
+                });
+              }
+            });
+          }
+        });
+      }
+
+      console.log("ResumeSkills: Transformed skills:", transformedSkills);
+      console.log(
+        `ResumeSkills: Total extracted skills: ${transformedSkills.extracted_skills.length}`
+      );
+
+      // Log first few skills for debugging
+      if (transformedSkills.extracted_skills.length > 0) {
+        console.log(
+          "ResumeSkills: Sample transformed skills:",
+          transformedSkills.extracted_skills.slice(0, 3)
+        );
+      }
+
+      setSkills(transformedSkills);
     } catch (error) {
-      console.error("Failed to extract resume skills:", error);
+      console.error("ResumeSkills: Failed to extract resume skills:", error);
+      console.error("ResumeSkills: Error details:", {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        headers: error.response?.headers,
+        config: error.config,
+      });
 
       const errorMessage =
         error.response?.data?.detail ||
@@ -91,9 +339,11 @@ const ResumeSkills = ({ resumeExists }) => {
 
       toast({
         title: "Skill extraction failed",
-        description: errorMessage,
+        description: `${errorMessage} (Status: ${
+          error.response?.status || "Unknown"
+        })`,
         status: "error",
-        duration: 5000,
+        duration: 10000,
         isClosable: true,
       });
     } finally {
@@ -243,6 +493,20 @@ const ResumeSkills = ({ resumeExists }) => {
                 We couldn't extract skills from your resume. Try uploading a
                 different format.
               </Text>
+              <VStack spacing={2} mt={4}>
+                <Button
+                  colorScheme="blue"
+                  leftIcon={<Icon as={FiRefreshCw} />}
+                  onClick={loadSkills}
+                  isLoading={isLoading}
+                  loadingText="Extracting..."
+                >
+                  Retry Extraction
+                </Button>
+                <Text fontSize="xs" color="gray.500">
+                  Debug: Check browser console for API call details
+                </Text>
+              </VStack>
             </VStack>
           </VStack>
         </CardBody>

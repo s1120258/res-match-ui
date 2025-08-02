@@ -57,9 +57,6 @@ const ResumeFeedback = ({ resumeExists, jobId = null }) => {
   const [jobSpecificError, setJobSpecificError] = useState(null);
   const toast = useToast();
 
-  // Debug logging
-  console.log("ResumeFeedback props:", { resumeExists, jobId });
-
   // Transform job-specific feedback data to expected format
   const transformJobSpecificFeedback = (apiResponse, jobId) => {
     if (!apiResponse || !apiResponse.job_specific_feedback) {
@@ -200,23 +197,18 @@ const ResumeFeedback = ({ resumeExists, jobId = null }) => {
 
   // Load job-specific feedback
   const loadJobSpecificFeedback = useCallback(async () => {
-    console.log("loadJobSpecificFeedback called:", { resumeExists, jobId });
     if (!resumeExists || !jobId) {
-      console.log("Skipping job-specific feedback: missing requirements");
       return;
     }
 
-    console.log("Loading job-specific feedback for jobId:", jobId);
     setIsLoadingJobSpecific(true);
     setJobSpecificError(null);
 
     try {
       const result = await getResumeJobSpecificFeedback(jobId);
-      console.log("Job-specific feedback received:", result);
 
       // Transform the API response to match expected format
       const transformedFeedback = transformJobSpecificFeedback(result, jobId);
-      console.log("Transformed feedback:", transformedFeedback);
       setJobSpecificFeedback(transformedFeedback);
     } catch (error) {
       console.error("Failed to get job-specific feedback:", error);
@@ -246,28 +238,19 @@ const ResumeFeedback = ({ resumeExists, jobId = null }) => {
   }, [resumeExists]);
 
   useEffect(() => {
-    console.log("useEffect for job-specific feedback triggered:", {
-      resumeExists,
-      jobId,
-    });
     if (resumeExists && jobId) {
-      console.log("Calling loadJobSpecificFeedback...");
       loadJobSpecificFeedback();
-    } else {
-      console.log("Requirements not met:", { resumeExists, jobId });
     }
   }, [resumeExists, jobId, loadJobSpecificFeedback]);
 
   // Force trigger when component mounts with jobId
   useEffect(() => {
-    console.log("Component mounted or jobId changed:", { resumeExists, jobId });
     if (
       resumeExists &&
       jobId &&
       !jobSpecificFeedback &&
       !isLoadingJobSpecific
     ) {
-      console.log("Force triggering job-specific feedback load...");
       loadJobSpecificFeedback();
     }
   }, [jobId]);
@@ -504,25 +487,6 @@ const ResumeFeedback = ({ resumeExists, jobId = null }) => {
 
   // Render job-specific feedback tab
   const renderJobSpecificFeedback = () => {
-    console.log("renderJobSpecificFeedback called with state:", {
-      resumeExists,
-      jobId,
-      jobSpecificFeedback,
-      isLoadingJobSpecific,
-      jobSpecificError,
-    });
-
-    // Debug: Log the structure of transformed data
-    if (jobSpecificFeedback?.job_title) {
-      console.log("Transformed job-specific feedback:", {
-        job_title: jobSpecificFeedback.job_title,
-        match_percentage: jobSpecificFeedback.match_percentage,
-        matching_skills: jobSpecificFeedback.matching_skills,
-        missing_skills: jobSpecificFeedback.missing_skills,
-        suggestions_count: jobSpecificFeedback.suggestions?.length,
-      });
-    }
-
     if (!resumeExists || !jobId) {
       return (
         <VStack spacing={4} py={8}>

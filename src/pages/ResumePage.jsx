@@ -306,19 +306,19 @@ const ResumePage = () => {
                 </Text>
                 <VStack spacing={2} align="start" pl={4}>
                   <HStack spacing={2}>
-                    <Icon as={FiCode} color="blue.500" size="sm" />
+                    <Icon as={FiCode} color="blue.500" w={4} h={4} />
                     <Text fontSize="sm" color="blue.600">
                       Automatic skills extraction and categorization
                     </Text>
                   </HStack>
                   <HStack spacing={2}>
-                    <Icon as={FiMessageSquare} color="blue.500" size="sm" />
+                    <Icon as={FiMessageSquare} color="blue.500" w={4} h={4} />
                     <Text fontSize="sm" color="blue.600">
                       AI-powered feedback and improvement suggestions
                     </Text>
                   </HStack>
                   <HStack spacing={2}>
-                    <Icon as={FiFileText} color="blue.500" size="sm" />
+                    <Icon as={FiFileText} color="blue.500" w={4} h={4} />
                     <Text fontSize="sm" color="blue.600">
                       Job-specific resume optimization recommendations
                     </Text>

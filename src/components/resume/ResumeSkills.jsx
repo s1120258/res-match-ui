@@ -71,19 +71,13 @@ const ResumeSkills = ({ resumeExists }) => {
 
   // Load skills data
   const loadSkills = async () => {
-    if (!resumeExists) {
-      console.log("ResumeSkills: No resume exists, skipping skills extraction");
-      return;
-    }
+    if (!resumeExists) return;
 
-    console.log("ResumeSkills: Starting to extract skills...");
     setIsLoading(true);
     setError(null);
 
     try {
-      console.log("ResumeSkills: Calling extractResumeSkills API...");
       const result = await extractResumeSkills();
-      console.log("ResumeSkills: Skills extracted successfully:", result);
 
       // Transform the API response to match expected format
       const transformedSkills = {
@@ -306,29 +300,9 @@ const ResumeSkills = ({ resumeExists }) => {
         });
       }
 
-      console.log("ResumeSkills: Transformed skills:", transformedSkills);
-      console.log(
-        `ResumeSkills: Total extracted skills: ${transformedSkills.extracted_skills.length}`
-      );
-
-      // Log first few skills for debugging
-      if (transformedSkills.extracted_skills.length > 0) {
-        console.log(
-          "ResumeSkills: Sample transformed skills:",
-          transformedSkills.extracted_skills.slice(0, 3)
-        );
-      }
-
       setSkills(transformedSkills);
     } catch (error) {
-      console.error("ResumeSkills: Failed to extract resume skills:", error);
-      console.error("ResumeSkills: Error details:", {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        headers: error.response?.headers,
-        config: error.config,
-      });
+      console.error("Failed to extract resume skills:", error);
 
       const errorMessage =
         error.response?.data?.detail ||
@@ -339,11 +313,9 @@ const ResumeSkills = ({ resumeExists }) => {
 
       toast({
         title: "Skill extraction failed",
-        description: `${errorMessage} (Status: ${
-          error.response?.status || "Unknown"
-        })`,
+        description: errorMessage,
         status: "error",
-        duration: 10000,
+        duration: 5000,
         isClosable: true,
       });
     } finally {
@@ -493,20 +465,16 @@ const ResumeSkills = ({ resumeExists }) => {
                 We couldn't extract skills from your resume. Try uploading a
                 different format.
               </Text>
-              <VStack spacing={2} mt={4}>
-                <Button
-                  colorScheme="blue"
-                  leftIcon={<Icon as={FiRefreshCw} />}
-                  onClick={loadSkills}
-                  isLoading={isLoading}
-                  loadingText="Extracting..."
-                >
-                  Retry Extraction
-                </Button>
-                <Text fontSize="xs" color="gray.500">
-                  Debug: Check browser console for API call details
-                </Text>
-              </VStack>
+              <Button
+                colorScheme="blue"
+                leftIcon={<Icon as={FiRefreshCw} />}
+                onClick={loadSkills}
+                isLoading={isLoading}
+                loadingText="Extracting..."
+                mt={4}
+              >
+                Retry Extraction
+              </Button>
             </VStack>
           </VStack>
         </CardBody>

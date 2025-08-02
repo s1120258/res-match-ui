@@ -59,19 +59,13 @@ const ResumeFeedback = ({ resumeExists, jobId = null }) => {
 
   // Load general feedback
   const loadGeneralFeedback = async () => {
-    if (!resumeExists) {
-      console.log("ResumeFeedback: No resume exists, skipping feedback load");
-      return;
-    }
+    if (!resumeExists) return;
 
-    console.log("ResumeFeedback: Starting to load general feedback...");
     setIsLoadingGeneral(true);
     setGeneralError(null);
 
     try {
-      console.log("ResumeFeedback: Calling getResumeGeneralFeedback API...");
       const result = await getResumeGeneralFeedback();
-      console.log("ResumeFeedback: General feedback received:", result);
 
       // Transform the API response to match expected format
       const transformedFeedback = {
@@ -84,17 +78,9 @@ const ResumeFeedback = ({ resumeExists, jobId = null }) => {
         areas_for_improvement: [], // Will be populated from feedback if available
       };
 
-      console.log("ResumeFeedback: Transformed feedback:", transformedFeedback);
       setGeneralFeedback(transformedFeedback);
     } catch (error) {
-      console.error("ResumeFeedback: Failed to get general feedback:", error);
-      console.error("ResumeFeedback: Error details:", {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        headers: error.response?.headers,
-        config: error.config,
-      });
+      console.error("Failed to get general feedback:", error);
 
       const errorMessage =
         error.response?.data?.detail ||
@@ -105,11 +91,9 @@ const ResumeFeedback = ({ resumeExists, jobId = null }) => {
 
       toast({
         title: "Failed to get feedback",
-        description: `${errorMessage} (Status: ${
-          error.response?.status || "Unknown"
-        })`,
+        description: errorMessage,
         status: "error",
-        duration: 10000,
+        duration: 5000,
         isClosable: true,
       });
     } finally {
@@ -235,20 +219,15 @@ const ResumeFeedback = ({ resumeExists, jobId = null }) => {
             <Text fontSize="md" fontWeight="semibold" color="gray.600">
               No feedback available
             </Text>
-            <VStack spacing={2}>
-              <Button
-                colorScheme="blue"
-                leftIcon={<Icon as={FiRefreshCw} />}
-                onClick={loadGeneralFeedback}
-                isLoading={isLoadingGeneral}
-                loadingText="Generating..."
-              >
-                Generate Feedback
-              </Button>
-              <Text fontSize="xs" color="gray.500">
-                Debug: Check browser console for API call details
-              </Text>
-            </VStack>
+            <Button
+              colorScheme="blue"
+              leftIcon={<Icon as={FiRefreshCw} />}
+              onClick={loadGeneralFeedback}
+              isLoading={isLoadingGeneral}
+              loadingText="Generating..."
+            >
+              Generate Feedback
+            </Button>
           </VStack>
         </VStack>
       );

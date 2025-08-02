@@ -88,7 +88,6 @@ const AuthContext = createContext();
 
 // Auth provider component
 export const AuthProvider = ({ children }) => {
-  console.log("🔵 AuthProvider: Rendering AuthProvider component");
   const [state, dispatch] = useReducer(authReducer, initialState);
   const isInitialized = useRef(false);
 

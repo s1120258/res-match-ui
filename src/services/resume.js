@@ -66,13 +66,10 @@ export const deleteResume = async () => {
  */
 export const getResumeGeneralFeedback = async () => {
   try {
-    console.log("API: Sending request to /api/v1/resume/feedback");
     const response = await apiClient.get("/api/v1/resume/feedback");
-    console.log("API: Resume feedback response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("API: Failed to get resume feedback:", error);
-    console.error("API: Error response:", error.response);
+    console.error("Failed to get resume feedback:", error);
     throw error;
   }
 };
@@ -98,13 +95,10 @@ export const getResumeJobSpecificFeedback = async (jobId) => {
  */
 export const extractResumeSkills = async () => {
   try {
-    console.log("API: Sending request to /api/v1/resume/skills");
     const response = await apiClient.get("/api/v1/resume/skills");
-    console.log("API: Resume skills response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("API: Failed to extract resume skills:", error);
-    console.error("API: Error response:", error.response);
+    console.error("Failed to extract resume skills:", error);
     throw error;
   }
 };

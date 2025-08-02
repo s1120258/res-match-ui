@@ -55,8 +55,11 @@ import {
   FiCalendar,
   FiTarget,
   FiBook,
+  FiMessageSquare,
 } from "react-icons/fi";
 import { jobsAPI, JOB_STATUS } from "../services/jobs";
+import ResumeFeedback from "../components/resume/ResumeFeedback";
+import { hasResume } from "../services/resume";
 
 const JobDetailPage = () => {
   const { id } = useParams();
@@ -69,6 +72,7 @@ const JobDetailPage = () => {
   const [skillGapAnalysis, setSkillGapAnalysis] = useState(null);
   const [jobSkills, setJobSkills] = useState(null);
   const [jobSummary, setJobSummary] = useState(null);
+  const [resumeExists, setResumeExists] = useState(false);
   const [loading, setLoading] = useState(true);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -100,6 +104,7 @@ const JobDetailPage = () => {
       loadMatchScore();
       loadSkillGapAnalysis();
       loadJobSkills();
+      checkResumeExists();
     } catch (err) {
       setError(err.message);
       setLoading(false);
@@ -155,6 +160,17 @@ const JobDetailPage = () => {
       setJobSkills(skillsData);
     } catch (err) {
       console.log("Job skills extraction not available:", err.message);
+    }
+  };
+
+  // Check if user has uploaded a resume
+  const checkResumeExists = async () => {
+    try {
+      const exists = await hasResume();
+      setResumeExists(exists);
+    } catch (err) {
+      console.log("Resume check failed:", err.message);
+      setResumeExists(false);
     }
   };
 
@@ -440,6 +456,12 @@ const JobDetailPage = () => {
                   <Tab>
                     <Icon as={FiStar} mr={2} />
                     Match Analysis
+                  </Tab>
+                )}
+                {resumeExists && (
+                  <Tab>
+                    <Icon as={FiMessageSquare} mr={2} />
+                    Resume Feedback
                   </Tab>
                 )}
                 {skillGapAnalysis && (
@@ -771,6 +793,13 @@ const JobDetailPage = () => {
                         </CardBody>
                       </Card>
                     </VStack>
+                  </TabPanel>
+                )}
+
+                {/* Resume Feedback Tab */}
+                {resumeExists && (
+                  <TabPanel px={0}>
+                    <ResumeFeedback resumeExists={resumeExists} jobId={id} />
                   </TabPanel>
                 )}
 

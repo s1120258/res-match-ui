@@ -21,6 +21,7 @@ import JobsPage from "./pages/JobsPage";
 import JobDetailPage from "./pages/JobDetailPage";
 import ResumePage from "./pages/ResumePage";
 import ResumeFeedbackPage from "./pages/ResumeFeedbackPage";
+import AnalyticsPage from "./pages/AnalyticsPage";
 
 // Placeholder components for routes that aren't implemented yet
 const PlaceholderPage = ({ title }) => (
@@ -101,7 +102,7 @@ function App() {
               element={
                 <ProtectedRoute>
                   <AppLayout>
-                    <PlaceholderPage title="Analytics" />
+                    <AnalyticsPage />
                   </AppLayout>
                 </ProtectedRoute>
               }

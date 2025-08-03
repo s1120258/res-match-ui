@@ -6,16 +6,6 @@ import {
   GridItem,
   Heading,
   Text,
-  Card,
-  CardBody,
-  CardHeader,
-  Stat,
-  StatLabel,
-  StatNumber,
-  StatHelpText,
-  VStack,
-  HStack,
-  Icon,
   Button,
   Skeleton,
   SkeletonText,
@@ -24,7 +14,12 @@ import {
   AlertTitle,
   AlertDescription,
   useToast,
-  Spinner,
+  VStack,
+  HStack,
+  Icon,
+  Badge,
+  Divider,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import {
   FiBookmark,
@@ -35,9 +30,17 @@ import {
   FiUpload,
   FiBarChart2,
   FiRefreshCw,
+  FiArrowRight,
+  FiActivity,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+
+// Enhanced components
+import EnhancedCard from "../components/common/EnhancedCard";
+import StatCard from "../components/common/StatCard";
+import MatchScoreDisplay from "../components/common/MatchScoreDisplay";
+import StatusBadge from "../components/common/StatusBadge";
 
 // Import services
 import { analyticsAPI } from "../services/analytics";
@@ -48,6 +51,10 @@ const DashboardPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
+
+  // Color values
+  const bgColor = useColorModeValue("neutral.50", "gray.900");
+  const welcomeCardBg = useColorModeValue("brand.500", "brand.600");
 
   // State management
   const [stats, setStats] = useState({
@@ -133,61 +140,54 @@ const DashboardPage = () => {
     action,
     onClick,
     colorScheme = "brand",
+    isHighlighted = false,
   }) => (
-    <Card
-      h="full"
-      _hover={{ transform: "translateY(-2px)", shadow: "lg" }}
-      transition="all 0.2s"
-      cursor="pointer"
+    <EnhancedCard
+      isInteractive
       onClick={onClick}
+      variant="elevated"
+      h="full"
+      borderLeft={isHighlighted ? "4px solid" : undefined}
+      borderColor={isHighlighted ? `${colorScheme}.500` : undefined}
+      bg={isHighlighted ? `${colorScheme}.50` : "white"}
     >
-      <CardBody>
-        <VStack spacing={4} align="start">
-          <Icon as={icon} size="24px" color={`${colorScheme}.500`} />
-          <VStack spacing={2} align="start">
-            <Text fontWeight="semibold" fontSize="lg">
-              {title}
-            </Text>
-            <Text color="gray.600" fontSize="sm">
-              {description}
-            </Text>
-          </VStack>
-          <Button colorScheme={colorScheme} variant="outline" size="sm">
-            {action}
-          </Button>
+      <VStack spacing={4} align="start" h="full">
+        <Box
+          p={3}
+          borderRadius="xl"
+          bg={`${colorScheme}.100`}
+          alignSelf="start"
+        >
+          <Icon as={icon} color={`${colorScheme}.600`} boxSize={6} />
+        </Box>
+
+        <VStack spacing={2} align="start" flex={1}>
+          <Heading size="md" fontWeight="600" color="neutral.800">
+            {title}
+          </Heading>
+          <Text color="neutral.600" fontSize="sm" lineHeight="1.5">
+            {description}
+          </Text>
         </VStack>
-      </CardBody>
-    </Card>
+
+        <HStack
+          w="full"
+          justify="space-between"
+          align="center"
+          pt={2}
+          borderTop="1px solid"
+          borderColor="neutral.100"
+        >
+          <Text fontSize="sm" fontWeight="600" color={`${colorScheme}.600`}>
+            {action}
+          </Text>
+          <Icon as={FiArrowRight} color={`${colorScheme}.500`} boxSize={4} />
+        </HStack>
+      </VStack>
+    </EnhancedCard>
   );
 
-  const StatCard = ({
-    icon,
-    label,
-    value,
-    helpText,
-    colorScheme = "brand",
-  }) => (
-    <Card>
-      <CardBody>
-        <Stat>
-          <HStack spacing={3} mb={2}>
-            <Icon as={icon} color={`${colorScheme}.500`} size="20px" />
-            <StatLabel fontSize="sm" color="gray.600">
-              {label}
-            </StatLabel>
-          </HStack>
-          <StatNumber fontSize="2xl" fontWeight="bold" color="gray.800">
-            {value}
-          </StatNumber>
-          <StatHelpText fontSize="xs" color="gray.500">
-            {helpText}
-          </StatHelpText>
-        </Stat>
-      </CardBody>
-    </Card>
-  );
-
-  // Recent activity component
+  // Recent activity component with enhanced design
   const RecentActivityItem = ({ job, type }) => {
     const getActivityColor = (status) => {
       switch (status) {
@@ -217,38 +217,153 @@ const DashboardPage = () => {
 
     return (
       <HStack
-        spacing={3}
-        p={3}
-        _hover={{ bg: "gray.50" }}
-        borderRadius="md"
+        spacing={4}
+        p={4}
+        _hover={{ bg: "neutral.50" }}
+        borderRadius="lg"
         cursor="pointer"
         onClick={() => navigate(`/jobs/${job.id}`)}
+        transition="all 0.2s"
       >
         <Box
-          w={2}
-          h={2}
+          w={3}
+          h={3}
           bg={`${getActivityColor(job.status)}.500`}
           borderRadius="full"
           flexShrink={0}
         />
         <VStack spacing={1} align="start" flex={1}>
-          <Text fontSize="sm" fontWeight="medium" noOfLines={1}>
+          <Text
+            fontSize="sm"
+            fontWeight="600"
+            noOfLines={1}
+            color="neutral.800"
+          >
             {getActivityText(job.status)} {job.title}
           </Text>
-          <Text fontSize="xs" color="gray.500" noOfLines={1}>
-            {job.company} •{" "}
-            {new Date(job.updated_at || job.created_at).toLocaleDateString()}
-          </Text>
+          <HStack spacing={2}>
+            <Text fontSize="xs" color="neutral.500" noOfLines={1}>
+              {job.company}
+            </Text>
+            <Box w={1} h={1} bg="neutral.300" borderRadius="full" />
+            <Text fontSize="xs" color="neutral.500">
+              {new Date(job.updated_at || job.created_at).toLocaleDateString()}
+            </Text>
+          </HStack>
         </VStack>
+        <StatusBadge status={job.status} size="sm" variant="subtle" />
       </HStack>
     );
   };
 
   if (loading) {
     return (
+      <Box bg={bgColor} minH="100vh">
+        <Container maxW="7xl" py={8}>
+          <VStack spacing={8} align="stretch">
+            <Skeleton height="80px" borderRadius="xl" />
+            <Grid
+              templateColumns={{
+                base: "1fr",
+                md: "repeat(2, 1fr)",
+                lg: "repeat(4, 1fr)",
+              }}
+              gap={6}
+            >
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} height="140px" borderRadius="xl" />
+              ))}
+            </Grid>
+            <Grid templateColumns={{ base: "1fr", lg: "2fr 1fr" }} gap={8}>
+              <Skeleton height="500px" borderRadius="xl" />
+              <Skeleton height="500px" borderRadius="xl" />
+            </Grid>
+          </VStack>
+        </Container>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box bg={bgColor} minH="100vh">
+        <Container maxW="7xl" py={8}>
+          <Alert
+            status="error"
+            borderRadius="xl"
+            p={6}
+            variant="subtle"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            textAlign="center"
+            height="200px"
+          >
+            <AlertIcon boxSize="40px" mr={0} />
+            <AlertTitle mt={4} mb={1} fontSize="lg">
+              Failed to load dashboard!
+            </AlertTitle>
+            <AlertDescription maxWidth="sm" mb={4}>
+              {error}
+            </AlertDescription>
+            <Button
+              leftIcon={<Icon as={FiRefreshCw} />}
+              colorScheme="red"
+              variant="outline"
+              onClick={loadDashboardData}
+            >
+              Try Again
+            </Button>
+          </Alert>
+        </Container>
+      </Box>
+    );
+  }
+
+  return (
+    <Box bg={bgColor} minH="100vh">
       <Container maxW="7xl" py={8}>
         <VStack spacing={8} align="stretch">
-          <Skeleton height="60px" />
+          {/* Welcome Header with enhanced design */}
+          <EnhancedCard
+            variant="elevated"
+            bg={welcomeCardBg}
+            color="white"
+            borderWidth={0}
+          >
+            <HStack justify="space-between" align="center">
+              <VStack align="start" spacing={2}>
+                <Heading
+                  size="xl"
+                  fontWeight="700"
+                  textShadow="0 1px 3px rgba(0,0,0,0.1)"
+                >
+                  Welcome back
+                  {user?.email ? `, ${user.email.split("@")[0]}` : ""}! 👋
+                </Heading>
+                <Text opacity={0.9} fontSize="lg">
+                  Here's your career journey overview
+                </Text>
+              </VStack>
+              <Button
+                leftIcon={<Icon as={FiRefreshCw} />}
+                variant="outline"
+                colorScheme="whiteAlpha"
+                color="white"
+                borderColor="rgba(255,255,255,0.3)"
+                _hover={{
+                  bg: "rgba(255,255,255,0.1)",
+                  borderColor: "rgba(255,255,255,0.5)",
+                }}
+                onClick={loadDashboardData}
+                isLoading={loading}
+              >
+                Refresh
+              </Button>
+            </HStack>
+          </EnhancedCard>
+
+          {/* Enhanced Stats Grid */}
           <Grid
             templateColumns={{
               base: "1fr",
@@ -257,208 +372,191 @@ const DashboardPage = () => {
             }}
             gap={6}
           >
-            <Skeleton height="120px" />
-            <Skeleton height="120px" />
-            <Skeleton height="120px" />
-            <Skeleton height="120px" />
+            <StatCard
+              icon={FiBookmark}
+              label="Saved Jobs"
+              value={stats.saved}
+              helpText="Jobs in your pipeline"
+              colorScheme="blue"
+              trend={stats.saved > 5 ? "increase" : undefined}
+              trendValue={stats.saved > 5 ? "+12%" : undefined}
+            />
+            <StatCard
+              icon={FiTarget}
+              label="Matched Jobs"
+              value={stats.matched}
+              helpText="High compatibility"
+              colorScheme="green"
+              trend={stats.matched > 0 ? "increase" : undefined}
+              trendValue={stats.matched > 0 ? "+8%" : undefined}
+            />
+            <StatCard
+              icon={FiCheckCircle}
+              label="Applied Jobs"
+              value={stats.applied}
+              helpText="Applications sent"
+              colorScheme="purple"
+            />
+            <StatCard
+              icon={FiTrendingUp}
+              label="Avg. Match Score"
+              value={`${stats.avgScore}%`}
+              helpText="Your compatibility"
+              colorScheme="orange"
+              trend={stats.avgScore > 70 ? "increase" : "decrease"}
+              trendValue={stats.avgScore > 70 ? "+5%" : "-3%"}
+            />
           </Grid>
+
+          {/* Main Content Grid */}
           <Grid templateColumns={{ base: "1fr", lg: "2fr 1fr" }} gap={8}>
-            <Skeleton height="400px" />
-            <Skeleton height="400px" />
-          </Grid>
-        </VStack>
-      </Container>
-    );
-  }
-
-  if (error) {
-    return (
-      <Container maxW="7xl" py={8}>
-        <Alert status="error">
-          <AlertIcon />
-          <VStack align="start">
-            <AlertTitle>Failed to load dashboard!</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-            <Button
-              leftIcon={<Icon as={FiRefreshCw} />}
-              size="sm"
-              onClick={loadDashboardData}
-            >
-              Retry
-            </Button>
-          </VStack>
-        </Alert>
-      </Container>
-    );
-  }
-
-  return (
-    <Container maxW="7xl" py={8}>
-      <VStack spacing={8} align="stretch">
-        {/* Welcome Header */}
-        <HStack justify="space-between" align="center">
-          <Box>
-            <Heading size="xl" mb={2}>
-              Welcome back{user?.email ? `, ${user.email.split("@")[0]}` : ""}!
-              👋
-            </Heading>
-            <Text color="gray.600" fontSize="lg">
-              Here's your career journey overview
-            </Text>
-          </Box>
-          <Button
-            leftIcon={<Icon as={FiRefreshCw} />}
-            variant="outline"
-            size="sm"
-            onClick={loadDashboardData}
-            isLoading={loading}
-          >
-            Refresh
-          </Button>
-        </HStack>
-
-        {/* Stats Grid */}
-        <Grid
-          templateColumns={{
-            base: "1fr",
-            md: "repeat(2, 1fr)",
-            lg: "repeat(4, 1fr)",
-          }}
-          gap={6}
-        >
-          <StatCard
-            icon={FiBookmark}
-            label="Saved Jobs"
-            value={stats.saved}
-            helpText="Jobs in your pipeline"
-            colorScheme="blue"
-          />
-          <StatCard
-            icon={FiTarget}
-            label="Matched Jobs"
-            value={stats.matched}
-            helpText="High compatibility"
-            colorScheme="green"
-          />
-          <StatCard
-            icon={FiCheckCircle}
-            label="Applied Jobs"
-            value={stats.applied}
-            helpText="Applications sent"
-            colorScheme="purple"
-          />
-          <StatCard
-            icon={FiTrendingUp}
-            label="Avg. Match Score"
-            value={`${stats.avgScore}%`}
-            helpText="Your compatibility"
-            colorScheme="orange"
-          />
-        </Grid>
-
-        {/* Main Content Grid */}
-        <Grid templateColumns={{ base: "1fr", lg: "2fr 1fr" }} gap={8}>
-          {/* Recent Activity */}
-          <GridItem>
-            <Card h="400px">
-              <CardHeader>
-                <HStack justify="space-between" align="center">
-                  <Heading size="md">Recent Activity</Heading>
+            {/* Recent Activity with enhanced design */}
+            <GridItem>
+              <EnhancedCard
+                title="Recent Activity"
+                icon={FiActivity}
+                iconColor="brand.500"
+                variant="elevated"
+                headerAction={
                   <Button
                     variant="ghost"
                     size="sm"
+                    rightIcon={<FiArrowRight />}
                     onClick={() => navigate("/jobs")}
                   >
                     View All
                   </Button>
-                </HStack>
-              </CardHeader>
-              <CardBody>
-                {recentJobs.length > 0 ? (
-                  <VStack
-                    spacing={0}
-                    align="stretch"
-                    divider={<Box h="1px" bg="gray.100" />}
-                  >
-                    {recentJobs.slice(0, 6).map((job) => (
-                      <RecentActivityItem key={job.id} job={job} />
-                    ))}
-                  </VStack>
-                ) : (
-                  <VStack spacing={4} align="center" justify="center" h="full">
-                    <Icon as={FiSearch} color="gray.300" boxSize={12} />
-                    <VStack spacing={2} textAlign="center">
-                      <Text fontSize="md" color="gray.500" fontWeight="medium">
-                        No recent activity
-                      </Text>
-                      <Text fontSize="sm" color="gray.400">
-                        Start by searching and saving jobs to see your activity
-                        here
-                      </Text>
-                      <Button
-                        colorScheme="brand"
-                        size="sm"
-                        onClick={() => navigate("/jobs")}
-                      >
-                        Search Jobs
-                      </Button>
+                }
+              >
+                <Box h="400px" overflowY="auto">
+                  {recentJobs.length > 0 ? (
+                    <VStack spacing={0} align="stretch" divider={<Divider />}>
+                      {recentJobs.slice(0, 6).map((job) => (
+                        <RecentActivityItem key={job.id} job={job} />
+                      ))}
                     </VStack>
-                  </VStack>
+                  ) : (
+                    <VStack
+                      spacing={6}
+                      align="center"
+                      justify="center"
+                      h="full"
+                    >
+                      <Box
+                        p={6}
+                        borderRadius="full"
+                        bg="neutral.100"
+                        color="neutral.400"
+                      >
+                        <Icon as={FiSearch} boxSize={12} />
+                      </Box>
+                      <VStack spacing={3} textAlign="center" maxW="sm">
+                        <Heading size="md" color="neutral.600">
+                          No recent activity
+                        </Heading>
+                        <Text
+                          fontSize="sm"
+                          color="neutral.500"
+                          lineHeight="1.6"
+                        >
+                          Start by searching and saving jobs to see your
+                          activity here
+                        </Text>
+                        <Button
+                          colorScheme="brand"
+                          leftIcon={<FiSearch />}
+                          onClick={() => navigate("/jobs")}
+                        >
+                          Search Jobs
+                        </Button>
+                      </VStack>
+                    </VStack>
+                  )}
+                </Box>
+              </EnhancedCard>
+            </GridItem>
+
+            {/* Quick Actions & Match Score */}
+            <GridItem>
+              <VStack spacing={6} align="stretch">
+                {/* Match Score Display */}
+                {stats.avgScore > 0 && (
+                  <EnhancedCard
+                    title="Your Match Score"
+                    subtitle="Overall compatibility with saved jobs"
+                    variant="elevated"
+                  >
+                    <Box textAlign="center" py={4}>
+                      <MatchScoreDisplay
+                        score={stats.avgScore}
+                        size="140px"
+                        thickness="12px"
+                        animateOnMount
+                        variant="detailed"
+                      />
+                    </Box>
+                  </EnhancedCard>
                 )}
-              </CardBody>
-            </Card>
-          </GridItem>
 
-          {/* Quick Actions */}
-          <GridItem>
-            <VStack spacing={6} align="stretch">
-              <Box>
-                <Heading size="md" mb={4}>
-                  Quick Actions
+                {/* Quick Actions */}
+                <EnhancedCard
+                  title="Quick Actions"
+                  subtitle="Jump start your career journey"
+                  variant="elevated"
+                >
+                  <VStack spacing={4}>
+                    <QuickActionCard
+                      icon={FiSearch}
+                      title="Search Jobs"
+                      description="Find new opportunities that match your profile"
+                      action="Start Searching"
+                      onClick={() => navigate("/jobs")}
+                      colorScheme="brand"
+                    />
+                    <QuickActionCard
+                      icon={FiUpload}
+                      title={resumeExists ? "Update Resume" : "Upload Resume"}
+                      description={
+                        resumeExists
+                          ? "Update your resume for better matching"
+                          : "Upload your resume to get started"
+                      }
+                      action={resumeExists ? "Update File" : "Upload File"}
+                      onClick={() => navigate("/resume")}
+                      colorScheme="green"
+                      isHighlighted={!resumeExists}
+                    />
+                    <QuickActionCard
+                      icon={FiBarChart2}
+                      title="View Analytics"
+                      description="Track your application progress and insights"
+                      action="View Reports"
+                      onClick={() => navigate("/analytics")}
+                      colorScheme="purple"
+                    />
+                  </VStack>
+                </EnhancedCard>
+              </VStack>
+            </GridItem>
+          </Grid>
+
+          {/* Enhanced Tips Section */}
+          <EnhancedCard
+            variant="elevated"
+            bg="brand.50"
+            borderLeft="4px solid"
+            borderColor="brand.500"
+          >
+            <VStack spacing={4} align="start">
+              <HStack spacing={3}>
+                <Box p={2} borderRadius="lg" bg="brand.100">
+                  <Text fontSize="xl">💡</Text>
+                </Box>
+                <Heading size="md" color="brand.700">
+                  Tip of the Day
                 </Heading>
-                <VStack spacing={4}>
-                  <QuickActionCard
-                    icon={FiSearch}
-                    title="Search Jobs"
-                    description="Find new opportunities that match your profile"
-                    action="Start Search"
-                    onClick={() => navigate("/jobs")}
-                    colorScheme="brand"
-                  />
-                  <QuickActionCard
-                    icon={FiUpload}
-                    title={resumeExists ? "Update Resume" : "Upload Resume"}
-                    description={
-                      resumeExists
-                        ? "Update your resume for better matching"
-                        : "Upload your resume to get started"
-                    }
-                    action={resumeExists ? "Update File" : "Upload File"}
-                    onClick={() => navigate("/resume")}
-                    colorScheme="green"
-                  />
-                  <QuickActionCard
-                    icon={FiBarChart2}
-                    title="View Analytics"
-                    description="Track your application progress and insights"
-                    action="View Reports"
-                    onClick={() => navigate("/analytics")}
-                    colorScheme="purple"
-                  />
-                </VStack>
-              </Box>
-            </VStack>
-          </GridItem>
-        </Grid>
-
-        {/* Tips Section */}
-        <Card bg="brand.50" borderLeft="4px solid" borderColor="brand.500">
-          <CardBody>
-            <VStack spacing={3} align="start">
-              <Heading size="sm" color="brand.700">
-                💡 Tip of the Day
-              </Heading>
-              <Text color="brand.600">
+              </HStack>
+              <Text color="brand.600" lineHeight="1.6">
                 {!resumeExists && stats.total === 0
                   ? "Start by uploading your resume to get AI-powered feedback and begin your job search journey."
                   : !resumeExists
@@ -471,29 +569,20 @@ const DashboardPage = () => {
                   ? "Review your resume feedback to improve your match scores with potential employers."
                   : "Great job! Keep monitoring your analytics to track your progress and identify new opportunities."}
               </Text>
-              {!resumeExists && (
+              {(!resumeExists || (resumeExists && stats.saved === 0)) && (
                 <Button
-                  size="sm"
                   colorScheme="brand"
-                  onClick={() => navigate("/resume")}
+                  leftIcon={<Icon as={!resumeExists ? FiUpload : FiSearch} />}
+                  onClick={() => navigate(!resumeExists ? "/resume" : "/jobs")}
                 >
-                  Upload Resume
-                </Button>
-              )}
-              {resumeExists && stats.saved === 0 && (
-                <Button
-                  size="sm"
-                  colorScheme="brand"
-                  onClick={() => navigate("/jobs")}
-                >
-                  Search Jobs
+                  {!resumeExists ? "Upload Resume" : "Search Jobs"}
                 </Button>
               )}
             </VStack>
-          </CardBody>
-        </Card>
-      </VStack>
-    </Container>
+          </EnhancedCard>
+        </VStack>
+      </Container>
+    </Box>
   );
 };
 

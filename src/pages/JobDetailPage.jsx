@@ -440,34 +440,51 @@ const JobDetailPage = () => {
         {/* Content Tabs */}
         <Card>
           <CardBody>
-            <Tabs index={activeTab} onChange={setActiveTab}>
-              <TabList>
-                <Tab>
+            <Tabs index={activeTab} onChange={setActiveTab} variant="enclosed">
+              <TabList overflowX="auto" overflowY="hidden" flexWrap="nowrap">
+                <Tab flexShrink={0} fontSize={{ base: "sm", md: "md" }}>
                   <Icon as={FiBriefcase} mr={2} />
-                  Job Details
+                  <Text display={{ base: "none", sm: "inline" }}>
+                    Job Details
+                  </Text>
+                  <Text display={{ base: "inline", sm: "none" }}>Details</Text>
                 </Tab>
                 {jobSkills && (
-                  <Tab>
+                  <Tab flexShrink={0} fontSize={{ base: "sm", md: "md" }}>
                     <Icon as={FiTarget} mr={2} />
-                    Required Skills
+                    <Text display={{ base: "none", sm: "inline" }}>
+                      Required Skills
+                    </Text>
+                    <Text display={{ base: "inline", sm: "none" }}>Skills</Text>
                   </Tab>
                 )}
                 {matchScore && (
-                  <Tab>
+                  <Tab flexShrink={0} fontSize={{ base: "sm", md: "md" }}>
                     <Icon as={FiStar} mr={2} />
-                    Match Analysis
+                    <Text display={{ base: "none", sm: "inline" }}>
+                      Match Analysis
+                    </Text>
+                    <Text display={{ base: "inline", sm: "none" }}>Match</Text>
                   </Tab>
                 )}
                 {resumeExists && (
-                  <Tab>
+                  <Tab flexShrink={0} fontSize={{ base: "sm", md: "md" }}>
                     <Icon as={FiMessageSquare} mr={2} />
-                    Resume Feedback
+                    <Text display={{ base: "none", sm: "inline" }}>
+                      Resume Feedback
+                    </Text>
+                    <Text display={{ base: "inline", sm: "none" }}>
+                      Feedback
+                    </Text>
                   </Tab>
                 )}
                 {skillGapAnalysis && (
-                  <Tab>
+                  <Tab flexShrink={0} fontSize={{ base: "sm", md: "md" }}>
                     <Icon as={FiTrendingUp} mr={2} />
-                    Skill Gap Analysis
+                    <Text display={{ base: "none", sm: "inline" }}>
+                      Skill Gap Analysis
+                    </Text>
+                    <Text display={{ base: "inline", sm: "none" }}>Gap</Text>
                   </Tab>
                 )}
               </TabList>

@@ -306,22 +306,33 @@ const JobDetailModal = ({ isOpen, onClose, job, onSave, onApply }) => {
           )}
 
           {!loading && (
-            <Tabs index={activeTab} onChange={setActiveTab}>
-              <TabList>
-                <Tab>
+            <Tabs index={activeTab} onChange={setActiveTab} variant="enclosed">
+              <TabList overflowX="auto" overflowY="hidden" flexWrap="nowrap">
+                <Tab flexShrink={0} fontSize={{ base: "sm", md: "md" }}>
                   <Icon as={FiBriefcase} mr={2} />
-                  Job Details
+                  <Text display={{ base: "none", sm: "inline" }}>
+                    Job Details
+                  </Text>
+                  <Text display={{ base: "inline", sm: "none" }}>Details</Text>
                 </Tab>
                 {matchScore && (
-                  <Tab>
+                  <Tab flexShrink={0} fontSize={{ base: "sm", md: "md" }}>
                     <Icon as={FiStar} mr={2} />
-                    Match Score
+                    <Text display={{ base: "none", sm: "inline" }}>
+                      Match Score
+                    </Text>
+                    <Text display={{ base: "inline", sm: "none" }}>Match</Text>
                   </Tab>
                 )}
                 {skillGapAnalysis && (
-                  <Tab>
+                  <Tab flexShrink={0} fontSize={{ base: "sm", md: "md" }}>
                     <Icon as={FiTrendingUp} mr={2} />
-                    Skill Analysis
+                    <Text display={{ base: "none", sm: "inline" }}>
+                      Skill Analysis
+                    </Text>
+                    <Text display={{ base: "inline", sm: "none" }}>
+                      Analysis
+                    </Text>
                   </Tab>
                 )}
               </TabList>

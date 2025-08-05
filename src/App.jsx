@@ -6,7 +6,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { ChakraProvider } from "@chakra-ui/react";
-import { AuthProvider } from "./contexts/AuthContext";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import theme from "./theme";
 
 // Layout Components
@@ -14,6 +14,7 @@ import AppLayout from "./components/layout/AppLayout";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 
 // Page Components
+import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -30,6 +31,22 @@ const PlaceholderPage = ({ title }) => (
     <p>This page is coming soon...</p>
   </div>
 );
+
+// Home route component that handles authentication-based routing
+const HomeRoute = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    // Show loading while checking authentication
+    return <div>Loading...</div>;
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <LandingPage />;
+};
 
 function App() {
   return (
@@ -130,11 +147,11 @@ function App() {
               }
             />
 
-            {/* Default redirect */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            {/* Home route - shows landing page or redirects to dashboard based on auth */}
+            <Route path="/" element={<HomeRoute />} />
 
             {/* Catch all route */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>
       </AuthProvider>

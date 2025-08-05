@@ -35,7 +35,7 @@ const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [validationError, setValidationError] = useState("");
 
-  const { register, isAuthenticated, error, clearError } = useAuth();
+  const { register, login, isAuthenticated, error, clearError } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const toast = useToast();
@@ -98,13 +98,41 @@ const RegisterPage = () => {
     });
 
     if (result.success) {
-      toast({
-        title: "Registration successful",
-        description: "Welcome to ResMatch! Your account has been created.",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
+      // Auto-login after successful registration
+      try {
+        const loginResult = await login(formData.email, formData.password);
+
+        if (loginResult.success) {
+          toast({
+            title: "Registration successful",
+            description: "Welcome to ResMatch! Your account has been created.",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
+
+          // Navigate to dashboard after successful registration and login
+          navigate("/dashboard", { replace: true });
+        } else {
+          toast({
+            title: "Registration successful",
+            description: "Please log in with your new account.",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
+          navigate("/login", { replace: true });
+        }
+      } catch (loginError) {
+        toast({
+          title: "Registration successful",
+          description: "Please log in with your new account.",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+        navigate("/login", { replace: true });
+      }
     } else {
       toast({
         title: "Registration failed",

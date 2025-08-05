@@ -125,13 +125,21 @@ export const AuthProvider = ({ children }) => {
       const response = await authAPI.register(userData);
       const { access_token, refresh_token, user } = response;
 
-      // Store tokens
-      tokenManager.setTokens(access_token, refresh_token);
+      // Store tokens if provided (some APIs return tokens on registration)
+      if (access_token && refresh_token) {
+        tokenManager.setTokens(access_token, refresh_token);
 
-      dispatch({
-        type: authActions.LOGIN_SUCCESS,
-        payload: { user },
-      });
+        dispatch({
+          type: authActions.LOGIN_SUCCESS,
+          payload: { user },
+        });
+      } else {
+        // Registration successful but no tokens provided
+        dispatch({
+          type: authActions.SET_LOADING,
+          payload: { isLoading: false },
+        });
+      }
 
       return { success: true };
     } catch (error) {
@@ -163,8 +171,6 @@ export const AuthProvider = ({ children }) => {
 
     const checkAuthStatus = async () => {
       try {
-        console.log("Checking auth status...");
-
         if (tokenManager.isAuthenticated()) {
           try {
             const user = await authAPI.getCurrentUser();
@@ -172,22 +178,18 @@ export const AuthProvider = ({ children }) => {
               type: authActions.SET_USER,
               payload: { user },
             });
-            console.log("User authenticated successfully");
           } catch (error) {
-            console.log("Auth check failed:", error.message);
             // Token is invalid, clear it
             tokenManager.clearTokens();
             dispatch({ type: authActions.LOGOUT });
           }
         } else {
-          console.log("No token found, user not authenticated");
           dispatch({
             type: authActions.SET_LOADING,
             payload: { isLoading: false },
           });
         }
       } catch (error) {
-        console.error("Auth status check error:", error);
         dispatch({
           type: authActions.SET_LOADING,
           payload: { isLoading: false },

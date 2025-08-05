@@ -5,6 +5,35 @@ import apiClient from "./api.js";
  * Based on API_INTEGRATION.md specifications
  */
 
+// Cache for resume data to avoid repeated API calls
+let resumeCache = {
+  data: null,
+  timestamp: null,
+  isChecked: false,
+};
+
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Clear resume cache (useful after upload/delete operations)
+ */
+export const clearResumeCache = () => {
+  resumeCache = {
+    data: null,
+    timestamp: null,
+    isChecked: false,
+  };
+};
+
+/**
+ * Check if cache is valid
+ */
+const isCacheValid = () => {
+  if (!resumeCache.isChecked) return false;
+  if (!resumeCache.timestamp) return false;
+  return Date.now() - resumeCache.timestamp < CACHE_DURATION;
+};
+
 /**
  * Upload a resume file
  * @param {File} file - The resume file to upload (PDF/Word)
@@ -21,6 +50,9 @@ export const uploadResume = async (file) => {
       },
     });
 
+    // Clear cache after successful upload
+    clearResumeCache();
+
     return response.data;
   } catch (error) {
     console.error("Resume upload failed:", error);
@@ -33,26 +65,36 @@ export const uploadResume = async (file) => {
  * @returns {Promise<Object>} Resume data
  */
 export const getResume = async () => {
-  try {
-    const response = await apiClient.get("/api/v1/resume", {
-      // Suppress axios error logging for this request since 404 is expected
-      validateStatus: function (status) {
-        return status < 500; // Resolve only if status is less than 500
-      },
-    });
+  // Check cache first
+  if (isCacheValid()) {
+    return resumeCache.data;
+  }
 
+  try {
+    const response = await apiClient.get("/api/v1/resume");
+
+    // api.js interceptor handles 404 errors and returns status: 404, data: null
     if (response.status === 404) {
-      // No resume found - return null instead of throwing
-      // Don't log this as an error since it's expected behavior
+      // Cache the fact that no resume exists
+      resumeCache = {
+        data: null,
+        timestamp: Date.now(),
+        isChecked: true,
+      };
       return null;
     }
 
+    // Cache the resume data
+    resumeCache = {
+      data: response.data,
+      timestamp: Date.now(),
+      isChecked: true,
+    };
+
     return response.data;
   } catch (error) {
-    // Only log unexpected errors (500+)
-    if (error.response?.status >= 500) {
-      console.error("Failed to get resume:", error);
-    }
+    // Only log unexpected errors (non-404)
+    console.error("Failed to get resume:", error);
     throw error;
   }
 };
@@ -64,6 +106,10 @@ export const getResume = async () => {
 export const deleteResume = async () => {
   try {
     const response = await apiClient.delete("/api/v1/resume");
+
+    // Clear cache after successful deletion
+    clearResumeCache();
+
     return response.data;
   } catch (error) {
     console.error("Resume deletion failed:", error);
@@ -119,25 +165,13 @@ export const extractResumeSkills = async () => {
  * @returns {Promise<boolean>} True if resume exists
  */
 export const hasResume = async () => {
+  // Use getResume which already has caching implemented
   try {
-    // Note: 404 errors are expected and normal when no resume exists
-    const response = await apiClient.get("/api/v1/resume", {
-      // Suppress axios error logging for this request
-      validateStatus: function (status) {
-        return status < 500; // Resolve only if status is less than 500
-      },
-    });
-
-    if (response.status === 404) {
-      return false;
-    }
-
-    return response.data !== null;
+    const resume = await getResume();
+    return resume !== null;
   } catch (error) {
-    // Only log unexpected errors (500+)
-    if (error.response?.status >= 500) {
-      console.error("Failed to check resume status:", error);
-    }
+    // Only log unexpected errors (non-404)
+    console.error("Failed to check resume status:", error);
     return false;
   }
 };

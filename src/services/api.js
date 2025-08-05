@@ -35,6 +35,21 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Silently handle resume API 404 errors (normal when no resume exists)
+    if (
+      error.response?.status === 404 &&
+      originalRequest.url?.includes("/resume")
+    ) {
+      // Return a structured response instead of throwing
+      return {
+        status: 404,
+        data: null,
+        headers: error.response.headers,
+        config: originalRequest,
+        request: error.request,
+      };
+    }
+
     // Prevent infinite retry loops
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;

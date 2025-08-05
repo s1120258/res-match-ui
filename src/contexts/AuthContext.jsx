@@ -97,15 +97,28 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const response = await authAPI.login(email, password);
-      const { access_token, refresh_token, user } = response;
+      const { access_token, refresh_token } = response;
 
       // Store tokens
       tokenManager.setTokens(access_token, refresh_token);
 
-      dispatch({
-        type: authActions.LOGIN_SUCCESS,
-        payload: { user },
-      });
+      // Get user information after successful token storage
+      try {
+        const user = await authAPI.getCurrentUser();
+
+        dispatch({
+          type: authActions.LOGIN_SUCCESS,
+          payload: { user },
+        });
+      } catch (userError) {
+        // If getting user info fails, still consider login successful but clear tokens
+        tokenManager.clearTokens();
+        dispatch({
+          type: authActions.LOGIN_FAILURE,
+          payload: { error: "Failed to get user information" },
+        });
+        return { success: false, error: "Failed to get user information" };
+      }
 
       return { success: true };
     } catch (error) {

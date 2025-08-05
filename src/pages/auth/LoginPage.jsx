@@ -71,6 +71,10 @@ const LoginPage = () => {
         duration: 3000,
         isClosable: true,
       });
+
+      // Navigate to dashboard after successful login
+      const from = location.state?.from?.pathname || "/dashboard";
+      navigate(from, { replace: true });
     } else {
       toast({
         title: "Login failed",

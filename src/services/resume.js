@@ -34,14 +34,25 @@ export const uploadResume = async (file) => {
  */
 export const getResume = async () => {
   try {
-    const response = await apiClient.get("/api/v1/resume");
-    return response.data;
-  } catch (error) {
-    if (error.response?.status === 404) {
+    const response = await apiClient.get("/api/v1/resume", {
+      // Suppress axios error logging for this request since 404 is expected
+      validateStatus: function (status) {
+        return status < 500; // Resolve only if status is less than 500
+      },
+    });
+
+    if (response.status === 404) {
       // No resume found - return null instead of throwing
+      // Don't log this as an error since it's expected behavior
       return null;
     }
-    console.error("Failed to get resume:", error);
+
+    return response.data;
+  } catch (error) {
+    // Only log unexpected errors (500+)
+    if (error.response?.status >= 500) {
+      console.error("Failed to get resume:", error);
+    }
     throw error;
   }
 };
@@ -109,9 +120,24 @@ export const extractResumeSkills = async () => {
  */
 export const hasResume = async () => {
   try {
-    const resume = await getResume();
-    return resume !== null;
+    // Note: 404 errors are expected and normal when no resume exists
+    const response = await apiClient.get("/api/v1/resume", {
+      // Suppress axios error logging for this request
+      validateStatus: function (status) {
+        return status < 500; // Resolve only if status is less than 500
+      },
+    });
+
+    if (response.status === 404) {
+      return false;
+    }
+
+    return response.data !== null;
   } catch (error) {
+    // Only log unexpected errors (500+)
+    if (error.response?.status >= 500) {
+      console.error("Failed to check resume status:", error);
+    }
     return false;
   }
 };

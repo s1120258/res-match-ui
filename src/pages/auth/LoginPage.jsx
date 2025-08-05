@@ -137,6 +137,7 @@ const LoginPage = () => {
                     placeholder="Enter your email"
                     size="lg"
                     borderRadius="md"
+                    autoComplete="username"
                   />
                 </FormControl>
 
@@ -156,6 +157,7 @@ const LoginPage = () => {
                     placeholder="Enter your password"
                     size="lg"
                     borderRadius="md"
+                    autoComplete="current-password"
                   />
                 </FormControl>
 

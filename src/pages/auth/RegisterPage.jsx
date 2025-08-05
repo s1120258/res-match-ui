@@ -171,6 +171,7 @@ const RegisterPage = () => {
                     placeholder="Enter your first name"
                     size="lg"
                     borderRadius="md"
+                    autoComplete="given-name"
                   />
                 </FormControl>
 
@@ -190,6 +191,7 @@ const RegisterPage = () => {
                     placeholder="Enter your last name"
                     size="lg"
                     borderRadius="md"
+                    autoComplete="family-name"
                   />
                 </FormControl>
 
@@ -209,6 +211,7 @@ const RegisterPage = () => {
                     placeholder="Enter your email"
                     size="lg"
                     borderRadius="md"
+                    autoComplete="email"
                   />
                 </FormControl>
 
@@ -228,6 +231,7 @@ const RegisterPage = () => {
                     placeholder="Enter your password"
                     size="lg"
                     borderRadius="md"
+                    autoComplete="new-password"
                   />
                 </FormControl>
 
@@ -247,6 +251,7 @@ const RegisterPage = () => {
                     placeholder="Confirm your password"
                     size="lg"
                     borderRadius="md"
+                    autoComplete="new-password"
                   />
                 </FormControl>
 

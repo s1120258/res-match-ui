@@ -340,7 +340,7 @@ const DashboardPage = () => {
                 >
                   Welcome back
                   {user?.firstname && user?.lastname
-                    ? `, ${user.firstname} ${user.lastname}`
+                    ? `, ${user.firstname}`
                     : user?.email
                     ? `, ${user.email.split("@")[0]}`
                     : ""}

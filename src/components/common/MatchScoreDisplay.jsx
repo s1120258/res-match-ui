@@ -7,9 +7,9 @@ import {
   VStack,
   HStack,
   Badge,
-  keyframes,
   useColorModeValue,
 } from "@chakra-ui/react";
+import { keyframes } from "@emotion/react";
 
 // Animation for score reveal
 const progressAnimation = keyframes`

@@ -10,8 +10,8 @@ import {
   HStack,
   VStack,
   useColorModeValue,
-  keyframes,
 } from "@chakra-ui/react";
+import { keyframes } from "@emotion/react";
 import EnhancedCard from "./EnhancedCard";
 
 // Animation for number counting effect

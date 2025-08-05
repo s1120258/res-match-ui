@@ -51,10 +51,26 @@ export const jobsAPI = {
   },
 
   // Get saved/applied jobs
-  getJobs: async (status = null) => {
+  getJobs: async (filters = {}) => {
     try {
-      const params = status ? `?status=${status}` : "";
-      const response = await apiClient.get(`/api/v1/jobs${params}`);
+      const params = new URLSearchParams();
+
+      // Handle different filter types
+      if (filters.status) params.append("status", filters.status);
+      if (filters.limit) params.append("limit", filters.limit);
+      if (filters.offset) params.append("offset", filters.offset);
+      if (filters.company) params.append("company", filters.company);
+      if (filters.location) params.append("location", filters.location);
+
+      // For backward compatibility with string status parameter
+      if (typeof filters === "string") {
+        params.append("status", filters);
+      }
+
+      const queryString = params.toString();
+      const url = queryString ? `/api/v1/jobs?${queryString}` : "/api/v1/jobs";
+
+      const response = await apiClient.get(url);
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.detail || "Failed to get jobs");

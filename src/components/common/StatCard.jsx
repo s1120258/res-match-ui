@@ -55,31 +55,36 @@ const StatCard = ({
 
   return (
     <EnhancedCard variant="elevated" isInteractive {...props}>
-      <VStack spacing={4} align="stretch">
-        {/* Icon and Label Row */}
-        <HStack spacing={3} align="center">
-          {icon && (
-            <Box
-              p={3}
-              borderRadius="xl"
-              bg={iconBgColor}
-              transition="all 0.2s"
-              _hover={{
-                transform: "scale(1.05)",
-              }}
-            >
-              <Icon as={icon} color={iconColor} boxSize={6} />
+      <Stat>
+        <VStack spacing={4} align="stretch">
+          {/* Icon and Label Row */}
+          <HStack spacing={3} align="center">
+            {icon && (
+              <Box
+                p={3}
+                borderRadius="xl"
+                bg={iconBgColor}
+                transition="all 0.2s"
+                _hover={{
+                  transform: "scale(1.05)",
+                }}
+              >
+                <Icon as={icon} color={iconColor} boxSize={6} />
+              </Box>
+            )}
+            <Box flex={1}>
+              <StatLabel
+                fontSize="sm"
+                fontWeight="500"
+                color={labelColor}
+                mb={1}
+              >
+                {label}
+              </StatLabel>
             </Box>
-          )}
-          <Box flex={1}>
-            <StatLabel fontSize="sm" fontWeight="500" color={labelColor} mb={1}>
-              {label}
-            </StatLabel>
-          </Box>
-        </HStack>
+          </HStack>
 
-        {/* Value and Trend */}
-        <Stat>
+          {/* Value and Trend */}
           <HStack justify="space-between" align="baseline">
             <StatNumber
               fontSize="3xl"
@@ -119,8 +124,8 @@ const StatCard = ({
               {helpText}
             </StatHelpText>
           )}
-        </Stat>
-      </VStack>
+        </VStack>
+      </Stat>
     </EnhancedCard>
   );
 };

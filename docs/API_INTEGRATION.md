@@ -25,7 +25,8 @@ const registerUser = async (userData) => {
     const response = await axios.post('/auth/register', {
       email: userData.email,
       password: userData.password,
-      full_name: userData.full_name
+      firstname: userData.firstname,
+      lastname: userData.lastname
     });
     return response.data;
   } catch (error) {
@@ -41,7 +42,8 @@ const registerUser = async (userData) => {
   "user": {
     "id": 1,
     "email": "user@example.com",
-    "full_name": "John Doe",
+    "firstname": "John",
+    "lastname": "Doe",
     "is_active": true,
     "created_at": "2023-01-01T00:00:00Z"
   }

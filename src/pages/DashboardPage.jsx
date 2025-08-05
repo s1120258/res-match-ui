@@ -339,7 +339,12 @@ const DashboardPage = () => {
                   textShadow="0 1px 3px rgba(0,0,0,0.1)"
                 >
                   Welcome back
-                  {user?.email ? `, ${user.email.split("@")[0]}` : ""}! 👋
+                  {user?.firstname && user?.lastname
+                    ? `, ${user.firstname} ${user.lastname}`
+                    : user?.email
+                    ? `, ${user.email.split("@")[0]}`
+                    : ""}
+                  ! 👋
                 </Heading>
                 <Text opacity={0.9} fontSize="lg">
                   Here's your career journey overview

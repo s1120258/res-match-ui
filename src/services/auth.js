@@ -8,7 +8,8 @@ export const authAPI = {
       const response = await apiClient.post("/api/v1/auth/register", {
         email: userData.email,
         password: userData.password,
-        full_name: userData.full_name,
+        firstname: userData.firstname,
+        lastname: userData.lastname,
       });
       return response.data;
     } catch (error) {

@@ -263,7 +263,11 @@ const AppLayout = ({ children }) => {
             <MenuButton>
               <Avatar
                 size="md"
-                name={user?.full_name || user?.email}
+                name={
+                  user?.firstname && user?.lastname
+                    ? `${user.firstname} ${user.lastname}`
+                    : user?.email
+                }
                 bg="brand.500"
                 color="white"
                 cursor="pointer"
@@ -284,7 +288,9 @@ const AppLayout = ({ children }) => {
             >
               <Box px={4} py={3}>
                 <Text fontSize="sm" fontWeight="600" color="neutral.800">
-                  {user?.full_name || "User"}
+                  {user?.firstname && user?.lastname
+                    ? `${user.firstname} ${user.lastname}`
+                    : "User"}
                 </Text>
                 <Text fontSize="xs" color="neutral.500">
                   {user?.email}
@@ -364,13 +370,19 @@ const AppLayout = ({ children }) => {
         <HStack spacing={3} p={4} borderRadius="xl" bg="neutral.50">
           <Avatar
             size="sm"
-            name={user?.full_name || user?.email}
+            name={
+              user?.firstname && user?.lastname
+                ? `${user.firstname} ${user.lastname}`
+                : user?.email
+            }
             bg="brand.500"
             color="white"
           />
           <VStack spacing={0} align="start" flex={1}>
             <Text fontSize="sm" fontWeight="600" noOfLines={1}>
-              {user?.full_name || "User"}
+              {user?.firstname && user?.lastname
+                ? `${user.firstname} ${user.lastname}`
+                : "User"}
             </Text>
             <Text fontSize="xs" color="neutral.500" noOfLines={1}>
               {user?.email}

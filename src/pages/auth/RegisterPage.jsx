@@ -29,7 +29,8 @@ const RegisterPage = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    full_name: "",
+    firstname: "",
+    lastname: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [validationError, setValidationError] = useState("");
@@ -92,7 +93,8 @@ const RegisterPage = () => {
     const result = await register({
       email: formData.email,
       password: formData.password,
-      full_name: formData.full_name,
+      firstname: formData.firstname,
+      lastname: formData.lastname,
     });
 
     if (result.success) {
@@ -153,20 +155,39 @@ const RegisterPage = () => {
                   </Alert>
                 )}
 
-                {/* Full Name Field */}
+                {/* First Name Field */}
                 <FormControl isRequired>
                   <FormLabel color="gray.700">
                     <HStack spacing={2}>
                       <Icon as={FiUser} />
-                      <Text>Full Name</Text>
+                      <Text>First Name</Text>
                     </HStack>
                   </FormLabel>
                   <Input
-                    name="full_name"
+                    name="firstname"
                     type="text"
-                    value={formData.full_name}
+                    value={formData.firstname}
                     onChange={handleInputChange}
-                    placeholder="Enter your full name"
+                    placeholder="Enter your first name"
+                    size="lg"
+                    borderRadius="md"
+                  />
+                </FormControl>
+
+                {/* Last Name Field */}
+                <FormControl isRequired>
+                  <FormLabel color="gray.700">
+                    <HStack spacing={2}>
+                      <Icon as={FiUser} />
+                      <Text>Last Name</Text>
+                    </HStack>
+                  </FormLabel>
+                  <Input
+                    name="lastname"
+                    type="text"
+                    value={formData.lastname}
+                    onChange={handleInputChange}
+                    placeholder="Enter your last name"
                     size="lg"
                     borderRadius="md"
                   />

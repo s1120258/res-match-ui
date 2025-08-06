@@ -1,5 +1,5 @@
 import React from "react";
-import { Badge, HStack, Icon, useColorModeValue } from "@chakra-ui/react";
+import { Badge, HStack, useColorModeValue } from "@chakra-ui/react";
 import {
   FiBookmark,
   FiTarget,
@@ -9,6 +9,7 @@ import {
   FiX,
   FiEye,
 } from "react-icons/fi";
+import ConsistentIcon from "./ConsistentIcon";
 
 /**
  * Enhanced Status Badge with modern design and icons
@@ -71,25 +72,25 @@ const StatusBadge = ({
 
   const config = statusConfig[status] || statusConfig.viewed;
 
-  // Size configurations
+  // Size configurations - now using design token sizes
   const sizeConfig = {
     sm: {
       fontSize: "xs",
       px: 2,
       py: 1,
-      iconSize: 3,
+      iconSize: "xs", // Maps to design token
     },
     md: {
       fontSize: "sm",
       px: 3,
       py: 1.5,
-      iconSize: 4,
+      iconSize: "sm", // Maps to design token
     },
     lg: {
       fontSize: "md",
       px: 4,
       py: 2,
-      iconSize: 5,
+      iconSize: "md", // Maps to design token
     },
   };
 
@@ -111,7 +112,12 @@ const StatusBadge = ({
     >
       <HStack spacing={1} align="center">
         {showIcon && (
-          <Icon as={config.icon} boxSize={sizeProps.iconSize} opacity={0.8} />
+          <ConsistentIcon
+            as={config.icon}
+            size={sizeProps.iconSize}
+            context="status"
+            opacity={0.8}
+          />
         )}
         {config.label}
       </HStack>

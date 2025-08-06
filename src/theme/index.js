@@ -300,6 +300,57 @@ const fonts = {
   mono: "'JetBrains Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace",
 };
 
+// Design tokens for consistency
+const designTokens = {
+  // Icon sizes based on usage context
+  iconSizes: {
+    xs: 3, // 12px - Small decorative icons, badges
+    sm: 4, // 16px - List item icons, small buttons
+    md: 5, // 20px - Navigation icons, card headers
+    lg: 6, // 24px - Primary action icons, stat cards
+    xl: 8, // 32px - Feature highlights, page headers
+    "2xl": 12, // 48px - Empty states, large illustrations
+  },
+
+  // Typography scale for semantic consistency
+  textVariants: {
+    pageTitle: {
+      fontSize: ["2xl", "3xl", "4xl"],
+      fontWeight: "800",
+      lineHeight: "1.2",
+      letterSpacing: "-0.02em",
+      color: "neutral.800",
+    },
+    sectionTitle: {
+      fontSize: ["lg", "xl", "2xl"],
+      fontWeight: "700",
+      lineHeight: "1.3",
+      color: "neutral.800",
+    },
+    cardTitle: {
+      fontSize: ["md", "lg"],
+      fontWeight: "600",
+      lineHeight: "1.4",
+      color: "neutral.800",
+    },
+    bodyText: {
+      fontSize: ["sm", "md"],
+      lineHeight: "1.6",
+      color: "neutral.700",
+    },
+    supportText: {
+      fontSize: ["xs", "sm"],
+      lineHeight: "1.5",
+      color: "neutral.600",
+    },
+    caption: {
+      fontSize: ["xs"],
+      lineHeight: "1.4",
+      color: "neutral.500",
+    },
+  },
+};
+
 // Enhanced text styles
 const textStyles = {
   h1: {
@@ -329,6 +380,8 @@ const textStyles = {
     color: "neutral.500",
     lineHeight: "1.5",
   },
+  // Add semantic text styles from design tokens
+  ...designTokens.textVariants,
 };
 
 // Enhanced global styles
@@ -389,6 +442,7 @@ const theme = extendTheme({
   breakpoints,
   space,
   shadows,
+  designTokens, // Add design tokens for global access
   config: {
     initialColorMode: "light",
     useSystemColorMode: false,

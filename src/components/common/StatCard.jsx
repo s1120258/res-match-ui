@@ -6,13 +6,14 @@ import {
   StatHelpText,
   StatArrow,
   Box,
-  Icon,
   HStack,
   VStack,
   useColorModeValue,
 } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
 import EnhancedCard from "./EnhancedCard";
+import ConsistentIcon from "./ConsistentIcon";
+import ConsistentText from "./ConsistentText";
 
 // Animation for number counting effect
 const fadeInUp = keyframes`
@@ -69,18 +70,18 @@ const StatCard = ({
                   transform: "scale(1.05)",
                 }}
               >
-                <Icon as={icon} color={iconColor} boxSize={6} />
+                <ConsistentIcon
+                  as={icon}
+                  size="lg"
+                  context="action"
+                  color={iconColor}
+                />
               </Box>
             )}
             <Box flex={1}>
-              <StatLabel
-                fontSize="sm"
-                fontWeight="500"
-                color={labelColor}
-                mb={1}
-              >
+              <ConsistentText variant="supportText" color={labelColor} mb={1}>
                 {label}
-              </StatLabel>
+              </ConsistentText>
             </Box>
           </HStack>
 
@@ -115,14 +116,9 @@ const StatCard = ({
           </HStack>
 
           {helpText && (
-            <StatHelpText
-              fontSize="xs"
-              color={helpColor}
-              mt={2}
-              fontWeight="500"
-            >
+            <ConsistentText variant="caption" color={helpColor} mt={2}>
               {helpText}
-            </StatHelpText>
+            </ConsistentText>
           )}
         </VStack>
       </Stat>

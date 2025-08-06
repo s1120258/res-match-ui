@@ -26,6 +26,11 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  overflow-x: hidden; /* Prevent horizontal scroll on mobile */
+}
+
+html {
+  overflow-x: hidden; /* Ensure root also hidden */
 }
 
 h1 {

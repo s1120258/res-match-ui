@@ -25,6 +25,7 @@ import {
   Icon,
   useColorModeValue,
   Divider,
+  Image,
 } from "@chakra-ui/react";
 import {
   FiMenu,
@@ -41,6 +42,7 @@ import {
 } from "react-icons/fi";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import logoImage from "../../assets/icons/custom/logo.png";
 
 const AppLayout = ({ children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -180,25 +182,13 @@ const AppLayout = ({ children }) => {
             />
           )}
           <HStack spacing={3} as={RouterLink} to="/dashboard">
-            <Box
+            <Image
+              src={logoImage}
+              alt="ResMatch Logo"
               w="10"
               h="10"
-              bg="brand.500"
-              borderRadius="xl"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              boxShadow="0 4px 14px 0 rgba(57, 114, 230, 0.25)"
-            >
-              <Text
-                fontSize="xl"
-                fontWeight="800"
-                color="white"
-                textShadow="0 1px 2px rgba(0,0,0,0.1)"
-              >
-                R
-              </Text>
-            </Box>
+              objectFit="contain"
+            />
             <VStack spacing={0} align="start">
               <Text
                 fontSize="xl"
@@ -407,19 +397,13 @@ const AppLayout = ({ children }) => {
         />
         <DrawerHeader borderBottomWidth="1px" borderColor={borderColor} pb={4}>
           <HStack spacing={3}>
-            <Box
+            <Image
+              src={logoImage}
+              alt="ResMatch Logo"
               w="8"
               h="8"
-              bg="brand.500"
-              borderRadius="lg"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Text fontSize="lg" fontWeight="800" color="white">
-                R
-              </Text>
-            </Box>
+              objectFit="contain"
+            />
             <Text color={brandColor} fontWeight="800" fontSize="lg">
               ResMatch
             </Text>

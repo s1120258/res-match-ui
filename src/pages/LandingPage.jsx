@@ -12,9 +12,11 @@ import {
   Badge,
   Flex,
   useColorModeValue,
+  Image,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { FiTarget, FiFileText, FiFolder, FiArrowRight } from "react-icons/fi";
+import logoImage from "../assets/icons/custom/logo.png";
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -72,9 +74,12 @@ const LandingPage = () => {
       {/* Header */}
       <Container maxW="7xl" py={6}>
         <Flex justify="space-between" align="center">
-          <Heading size="lg" color="blue.500">
-            ResMatch
-          </Heading>
+          <HStack spacing={3}>
+            <Image src={logoImage} alt="ResMatch Logo" boxSize="40px" />
+            <Heading size="lg" color="blue.500">
+              ResMatch
+            </Heading>
+          </HStack>
           <HStack spacing={4}>
             <Button variant="ghost" colorScheme="blue" onClick={handleLogin}>
               Login

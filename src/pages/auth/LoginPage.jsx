@@ -20,9 +20,11 @@ import {
   VStack,
   HStack,
   Icon,
+  Image,
 } from "@chakra-ui/react";
 import { FiUser, FiLock, FiArrowRight } from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
+import logoImage from "../../assets/icons/custom/logo.png";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -93,9 +95,12 @@ const LoginPage = () => {
       <VStack spacing={8}>
         {/* Logo/Brand */}
         <VStack spacing={2}>
-          <Heading size="2xl" color="brand.500" fontWeight="bold">
-            ResMatch
-          </Heading>
+          <HStack spacing={4} align="center">
+            <Image src={logoImage} alt="ResMatch Logo" boxSize="60px" />
+            <Heading size="2xl" color="brand.500" fontWeight="bold">
+              ResMatch
+            </Heading>
+          </HStack>
           <Text color="gray.600" textAlign="center">
             AI-Powered Career Support Platform
           </Text>

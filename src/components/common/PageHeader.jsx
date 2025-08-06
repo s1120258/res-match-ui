@@ -7,11 +7,12 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
+  Text,
+  Icon,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { ChevronRightIcon } from "@chakra-ui/icons";
-import ConsistentIcon from "./ConsistentIcon";
-import ConsistentText from "./ConsistentText";
+import { FiChevronRight } from "react-icons/fi";
+import { Link as RouterLink } from "react-router-dom";
 
 /**
  * Standardized Page Header Component
@@ -31,7 +32,7 @@ const PageHeader = ({
   action,
   ...props
 }) => {
-  const borderColor = useColorModeValue("neutral.200", "gray.600");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   return (
     <Box
@@ -47,7 +48,9 @@ const PageHeader = ({
         {breadcrumbs && breadcrumbs.length > 0 && (
           <Breadcrumb
             spacing={2}
-            separator={<ChevronRightIcon color="neutral.400" boxSize={3} />}
+            separator={
+              <Icon as={FiChevronRight} color="gray.400" boxSize={3} />
+            }
           >
             {breadcrumbs.map((crumb, index) => (
               <BreadcrumbItem
@@ -55,17 +58,15 @@ const PageHeader = ({
                 isCurrentPage={index === breadcrumbs.length - 1}
               >
                 <BreadcrumbLink
-                  href={crumb.href}
+                  as={RouterLink}
+                  to={crumb.href}
                   color={
-                    index === breadcrumbs.length - 1
-                      ? "neutral.800"
-                      : "neutral.500"
+                    index === breadcrumbs.length - 1 ? "gray.800" : "gray.500"
                   }
                   fontWeight={index === breadcrumbs.length - 1 ? "600" : "400"}
+                  fontSize="sm"
                 >
-                  <ConsistentText variant="supportText">
-                    {crumb.label}
-                  </ConsistentText>
+                  {crumb.label}
                 </BreadcrumbLink>
               </BreadcrumbItem>
             ))}
@@ -77,21 +78,24 @@ const PageHeader = ({
           <HStack spacing={4} align="center" flex={1}>
             {icon && (
               <Box p={3} borderRadius="xl" bg="brand.50" flexShrink={0}>
-                <ConsistentIcon
-                  as={icon}
-                  size="lg"
-                  context="action"
-                  color="brand.500"
-                />
+                <Icon as={icon} boxSize={6} color="brand.500" />
               </Box>
             )}
 
             <VStack spacing={1} align="start" flex={1}>
-              <ConsistentText variant="pageTitle">{title}</ConsistentText>
+              <Text
+                fontSize={["lg", "xl", "2xl"]}
+                fontWeight="800"
+                lineHeight="1.2"
+                letterSpacing="-0.02em"
+                color="gray.800"
+              >
+                {title}
+              </Text>
               {subtitle && (
-                <ConsistentText variant="supportText" color="neutral.600">
+                <Text fontSize={["sm", "md"]} lineHeight="1.5" color="gray.600">
                   {subtitle}
-                </ConsistentText>
+                </Text>
               )}
             </VStack>
           </HStack>

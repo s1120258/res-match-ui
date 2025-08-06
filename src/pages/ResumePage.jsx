@@ -39,6 +39,7 @@ import ResumeDisplay from "../components/resume/ResumeDisplay";
 import ResumeSkills from "../components/resume/ResumeSkills";
 import ResumeFeedback from "../components/resume/ResumeFeedback";
 import ErrorBoundary from "../components/common/ErrorBoundary";
+import PageHeader from "../components/common/PageHeader";
 
 // Import resume service
 import { getResume } from "../services/resume";
@@ -260,268 +261,242 @@ const ResumePage = () => {
   }
 
   return (
-    <Container
-      maxW="container.lg"
-      py={layoutValues.containerPadding}
-      px={layoutValues.containerPx}
-    >
-      <VStack spacing={layoutValues.vStackSpacing} align="stretch">
-        {/* Header */}
-        <Box>
-          <VStack spacing={3} align="start">
-            <Box w="full" textAlign={{ base: "center", sm: "left" }}>
-              <HStack
-                spacing={{ base: 2, sm: 3 }}
-                direction={headerDirection}
-                align={headerAlign}
-                w="full"
-                justify={layoutValues.headerJustify}
-              >
-                <Icon
-                  as={FiUser}
-                  w={{ base: 5, md: 8 }}
-                  h={{ base: 5, md: 8 }}
-                  color="blue.500"
-                />
-                <VStack align={headerAlign} spacing={0}>
-                  <Text
-                    fontSize={{ base: "lg", md: "2xl" }}
-                    fontWeight="bold"
-                    color="gray.800"
-                    textAlign={layoutValues.headerTextAlign}
-                  >
-                    Resume Management
-                  </Text>
-                  <Text
-                    fontSize={{ base: "xs", md: "md" }}
-                    color="gray.600"
-                    textAlign={layoutValues.headerTextAlign}
-                    lineHeight="short"
-                  >
-                    Upload, analyze, and improve your resume with AI-powered
-                    insights
-                  </Text>
-                </VStack>
-              </HStack>
-            </Box>
+    <Box>
+      <PageHeader
+        title="Resume Management"
+        subtitle="Upload, analyze, and improve your resume with AI-powered insights"
+        icon={FiFileText}
+      />
 
-            {/* Status indicator */}
-            <Card
-              w="full"
-              bg={resumeExists ? "green.50" : "orange.50"}
-              borderColor={resumeExists ? "green.200" : "orange.200"}
-            >
-              <CardBody py={{ base: 2, md: 3 }} px={{ base: 3, md: 6 }}>
-                <VStack spacing={{ base: 1, md: 0 }} align="start">
-                  <HStack
-                    spacing={{ base: 2, md: 3 }}
-                    w="full"
-                    justify="space-between"
-                  >
-                    <HStack spacing={{ base: 2, md: 3 }}>
-                      <Icon
-                        as={resumeExists ? FiFileText : FiUpload}
-                        color={resumeExists ? "green.500" : "orange.500"}
-                        w={{ base: 4, md: 5 }}
-                        h={{ base: 4, md: 5 }}
-                      />
-                      <VStack align="start" spacing={0}>
-                        <Text
-                          fontWeight="semibold"
-                          color="gray.800"
-                          fontSize={{ base: "sm", md: "md" }}
-                        >
-                          {resumeExists
-                            ? "Resume Active"
-                            : "No Resume Uploaded"}
-                        </Text>
-                        <Text
-                          fontSize={{ base: "xs", md: "sm" }}
-                          color="gray.600"
-                        >
-                          {resumeExists
-                            ? "Your resume is ready for analysis"
-                            : "Upload your resume to unlock AI features"}
-                        </Text>
-                      </VStack>
-                    </HStack>
-
-                    {resumeExists && (
+      <Container
+        maxW="container.lg"
+        py={layoutValues.containerPadding}
+        px={layoutValues.containerPx}
+      >
+        <VStack spacing={layoutValues.vStackSpacing} align="stretch">
+          {/* Status indicator */}
+          <Card
+            w="full"
+            bg={resumeExists ? "green.50" : "orange.50"}
+            borderColor={resumeExists ? "green.200" : "orange.200"}
+          >
+            <CardBody py={{ base: 2, md: 3 }} px={{ base: 3, md: 6 }}>
+              <VStack spacing={{ base: 1, md: 0 }} align="start">
+                <HStack
+                  spacing={{ base: 2, md: 3 }}
+                  w="full"
+                  justify="space-between"
+                >
+                  <HStack spacing={{ base: 2, md: 3 }}>
+                    <Icon
+                      as={resumeExists ? FiFileText : FiUpload}
+                      color={resumeExists ? "green.500" : "orange.500"}
+                      w={{ base: 4, md: 5 }}
+                      h={{ base: 4, md: 5 }}
+                    />
+                    <VStack align="start" spacing={0}>
+                      <Text
+                        fontWeight="semibold"
+                        color="gray.800"
+                        fontSize={{ base: "sm", md: "md" }}
+                      >
+                        {resumeExists ? "Resume Active" : "No Resume Uploaded"}
+                      </Text>
                       <Text
                         fontSize={{ base: "xs", md: "sm" }}
-                        color="gray.500"
-                        textAlign="right"
-                        flexShrink={0}
+                        color="gray.600"
                       >
-                        {formatDate(resume?.uploaded_at)}
+                        {resumeExists
+                          ? "Your resume is ready for analysis"
+                          : "Upload your resume to unlock AI features"}
                       </Text>
-                    )}
+                    </VStack>
                   </HStack>
+
+                  {resumeExists && (
+                    <Text
+                      fontSize={{ base: "xs", md: "sm" }}
+                      color="gray.500"
+                      textAlign="right"
+                      flexShrink={0}
+                    >
+                      {formatDate(resume?.uploaded_at)}
+                    </Text>
+                  )}
+                </HStack>
+              </VStack>
+            </CardBody>
+          </Card>
+
+          <Divider />
+
+          {/* Main Content */}
+          <Box>
+            <Tabs
+              index={activeTab}
+              onChange={setActiveTab}
+              variant={layoutValues.tabVariant}
+              size={{ base: "sm", md: "md" }}
+            >
+              <TabList
+                overflowX="auto"
+                overflowY="hidden"
+                whiteSpace="nowrap"
+                sx={{
+                  "&::-webkit-scrollbar": {
+                    display: "none",
+                  },
+                  scrollbarWidth: "none",
+                  "& > *": {
+                    flexShrink: 0,
+                  },
+                }}
+              >
+                {tabs.map((tab, index) => (
+                  <Tab
+                    key={tab.id}
+                    minW={{ base: "70px", md: "unset" }}
+                    px={{ base: 2, md: 4 }}
+                  >
+                    <HStack spacing={{ base: 1, md: 2 }}>
+                      <Icon
+                        as={tab.icon}
+                        w={{ base: 3, md: 4 }}
+                        h={{ base: 3, md: 4 }}
+                      />
+                      <Text
+                        fontSize={{ base: "xs", md: "sm" }}
+                        display={{ base: "none", sm: "block" }}
+                      >
+                        {tab.label}
+                      </Text>
+                    </HStack>
+                  </Tab>
+                ))}
+              </TabList>
+
+              <TabPanels>
+                {tabs.map((tab, index) => (
+                  <TabPanel key={tab.id} px={0} py={{ base: 3, md: 6 }}>
+                    {tab.component}
+                  </TabPanel>
+                ))}
+              </TabPanels>
+            </Tabs>
+          </Box>
+
+          {/* Quick Actions (when no resume) */}
+          {!resumeExists && (
+            <Card bg="blue.50" borderColor="blue.200">
+              <CardHeader pb={{ base: 2, md: 4 }}>
+                <Text
+                  fontSize={{ base: "md", md: "lg" }}
+                  fontWeight="bold"
+                  color="blue.800"
+                >
+                  Get Started with Resume Analysis
+                </Text>
+              </CardHeader>
+              <CardBody pt={0}>
+                <VStack spacing={{ base: 3, md: 4 }} align="start">
+                  <Text color="blue.700" fontSize={{ base: "sm", md: "md" }}>
+                    Upload your resume to unlock powerful AI features:
+                  </Text>
+                  <VStack
+                    spacing={{ base: 1, md: 2 }}
+                    align="start"
+                    pl={{ base: 2, md: 4 }}
+                  >
+                    <HStack spacing={2}>
+                      <Icon
+                        as={FiCode}
+                        color="blue.500"
+                        w={{ base: 3, md: 4 }}
+                        h={{ base: 3, md: 4 }}
+                      />
+                      <Text
+                        fontSize={{ base: "xs", md: "sm" }}
+                        color="blue.600"
+                      >
+                        Automatic skills extraction and categorization
+                      </Text>
+                    </HStack>
+                    <HStack spacing={2}>
+                      <Icon
+                        as={FiMessageSquare}
+                        color="blue.500"
+                        w={{ base: 3, md: 4 }}
+                        h={{ base: 3, md: 4 }}
+                      />
+                      <Text
+                        fontSize={{ base: "xs", md: "sm" }}
+                        color="blue.600"
+                      >
+                        AI-powered feedback and improvement suggestions
+                      </Text>
+                    </HStack>
+                    <HStack spacing={2}>
+                      <Icon
+                        as={FiFileText}
+                        color="blue.500"
+                        w={{ base: 3, md: 4 }}
+                        h={{ base: 3, md: 4 }}
+                      />
+                      <Text
+                        fontSize={{ base: "xs", md: "sm" }}
+                        color="blue.600"
+                      >
+                        Job-specific resume optimization recommendations
+                      </Text>
+                    </HStack>
+                  </VStack>
+                  <Button
+                    colorScheme="blue"
+                    size={{ base: "sm", md: "md" }}
+                    leftIcon={<Icon as={FiUpload} />}
+                    onClick={() => setActiveTab(0)}
+                    w={layoutValues.buttonWidth}
+                  >
+                    Upload Resume Now
+                  </Button>
                 </VStack>
               </CardBody>
             </Card>
-          </VStack>
-        </Box>
+          )}
 
-        <Divider />
-
-        {/* Main Content */}
-        <Box>
-          <Tabs
-            index={activeTab}
-            onChange={setActiveTab}
-            variant={layoutValues.tabVariant}
-            size={{ base: "sm", md: "md" }}
-          >
-            <TabList
-              overflowX="auto"
-              overflowY="hidden"
-              whiteSpace="nowrap"
-              sx={{
-                "&::-webkit-scrollbar": {
-                  display: "none",
-                },
-                scrollbarWidth: "none",
-                "& > *": {
-                  flexShrink: 0,
-                },
-              }}
-            >
-              {tabs.map((tab, index) => (
-                <Tab
-                  key={tab.id}
-                  minW={{ base: "70px", md: "unset" }}
-                  px={{ base: 2, md: 4 }}
-                >
-                  <HStack spacing={{ base: 1, md: 2 }}>
-                    <Icon
-                      as={tab.icon}
-                      w={{ base: 3, md: 4 }}
-                      h={{ base: 3, md: 4 }}
-                    />
-                    <Text
-                      fontSize={{ base: "xs", md: "sm" }}
-                      display={{ base: "none", sm: "block" }}
-                    >
-                      {tab.label}
-                    </Text>
-                  </HStack>
-                </Tab>
-              ))}
-            </TabList>
-
-            <TabPanels>
-              {tabs.map((tab, index) => (
-                <TabPanel key={tab.id} px={0} py={{ base: 3, md: 6 }}>
-                  {tab.component}
-                </TabPanel>
-              ))}
-            </TabPanels>
-          </Tabs>
-        </Box>
-
-        {/* Quick Actions (when no resume) */}
-        {!resumeExists && (
-          <Card bg="blue.50" borderColor="blue.200">
+          {/* Help Section */}
+          <Card bg="gray.50" borderColor="gray.200">
             <CardHeader pb={{ base: 2, md: 4 }}>
               <Text
                 fontSize={{ base: "md", md: "lg" }}
                 fontWeight="bold"
-                color="blue.800"
+                color="gray.800"
               >
-                Get Started with Resume Analysis
+                Tips for Better Results
               </Text>
             </CardHeader>
             <CardBody pt={0}>
-              <VStack spacing={{ base: 3, md: 4 }} align="start">
-                <Text color="blue.700" fontSize={{ base: "sm", md: "md" }}>
-                  Upload your resume to unlock powerful AI features:
+              <VStack spacing={{ base: 2, md: 3 }} align="start">
+                <Text fontSize={{ base: "xs", md: "sm" }} color="gray.700">
+                  • Use a well-formatted PDF or Word document for best text
+                  extraction
                 </Text>
-                <VStack
-                  spacing={{ base: 1, md: 2 }}
-                  align="start"
-                  pl={{ base: 2, md: 4 }}
-                >
-                  <HStack spacing={2}>
-                    <Icon
-                      as={FiCode}
-                      color="blue.500"
-                      w={{ base: 3, md: 4 }}
-                      h={{ base: 3, md: 4 }}
-                    />
-                    <Text fontSize={{ base: "xs", md: "sm" }} color="blue.600">
-                      Automatic skills extraction and categorization
-                    </Text>
-                  </HStack>
-                  <HStack spacing={2}>
-                    <Icon
-                      as={FiMessageSquare}
-                      color="blue.500"
-                      w={{ base: 3, md: 4 }}
-                      h={{ base: 3, md: 4 }}
-                    />
-                    <Text fontSize={{ base: "xs", md: "sm" }} color="blue.600">
-                      AI-powered feedback and improvement suggestions
-                    </Text>
-                  </HStack>
-                  <HStack spacing={2}>
-                    <Icon
-                      as={FiFileText}
-                      color="blue.500"
-                      w={{ base: 3, md: 4 }}
-                      h={{ base: 3, md: 4 }}
-                    />
-                    <Text fontSize={{ base: "xs", md: "sm" }} color="blue.600">
-                      Job-specific resume optimization recommendations
-                    </Text>
-                  </HStack>
-                </VStack>
-                <Button
-                  colorScheme="blue"
-                  size={{ base: "sm", md: "md" }}
-                  leftIcon={<Icon as={FiUpload} />}
-                  onClick={() => setActiveTab(0)}
-                  w={layoutValues.buttonWidth}
-                >
-                  Upload Resume Now
-                </Button>
+                <Text fontSize={{ base: "xs", md: "sm" }} color="gray.700">
+                  • Include specific skills, technologies, and frameworks you've
+                  used
+                </Text>
+                <Text fontSize={{ base: "xs", md: "sm" }} color="gray.700">
+                  • List quantifiable achievements and project details
+                </Text>
+                <Text fontSize={{ base: "xs", md: "sm" }} color="gray.700">
+                  • Keep your resume updated with recent experience and skills
+                </Text>
               </VStack>
             </CardBody>
           </Card>
-        )}
-
-        {/* Help Section */}
-        <Card bg="gray.50" borderColor="gray.200">
-          <CardHeader pb={{ base: 2, md: 4 }}>
-            <Text
-              fontSize={{ base: "md", md: "lg" }}
-              fontWeight="bold"
-              color="gray.800"
-            >
-              Tips for Better Results
-            </Text>
-          </CardHeader>
-          <CardBody pt={0}>
-            <VStack spacing={{ base: 2, md: 3 }} align="start">
-              <Text fontSize={{ base: "xs", md: "sm" }} color="gray.700">
-                • Use a well-formatted PDF or Word document for best text
-                extraction
-              </Text>
-              <Text fontSize={{ base: "xs", md: "sm" }} color="gray.700">
-                • Include specific skills, technologies, and frameworks you've
-                used
-              </Text>
-              <Text fontSize={{ base: "xs", md: "sm" }} color="gray.700">
-                • List quantifiable achievements and project details
-              </Text>
-              <Text fontSize={{ base: "xs", md: "sm" }} color="gray.700">
-                • Keep your resume updated with recent experience and skills
-              </Text>
-            </VStack>
-          </CardBody>
-        </Card>
-      </VStack>
-    </Container>
+        </VStack>
+      </Container>
+    </Box>
   );
 };
 

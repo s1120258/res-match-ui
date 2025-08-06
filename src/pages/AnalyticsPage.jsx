@@ -44,6 +44,7 @@ import { analyticsAPI, analyticsUtils } from "../services/analytics";
 import StatusSummaryChart from "../components/analytics/StatusSummaryChart";
 import JobsOverTimeChart from "../components/analytics/JobsOverTimeChart";
 import MatchScoreChart from "../components/analytics/MatchScoreChart";
+import PageHeader from "../components/common/PageHeader";
 
 const AnalyticsPage = () => {
   // State management
@@ -154,35 +155,16 @@ const AnalyticsPage = () => {
     : null;
 
   return (
-    <Container maxW="7xl" py={8}>
-      <VStack spacing={6} align="stretch">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb>
-          <BreadcrumbItem>
-            <BreadcrumbLink as={RouterLink} to="/dashboard">
-              <Icon as={FiHome} mr={1} />
-              Dashboard
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbItem isCurrentPage>
-            <BreadcrumbLink>Analytics</BreadcrumbLink>
-          </BreadcrumbItem>
-        </Breadcrumb>
-
-        {/* Page Header */}
-        <HStack justify="space-between" align="center" wrap="wrap">
-          <VStack align="start" spacing={2}>
-            <HStack spacing={3}>
-              <Icon as={FiBarChart2} color="brand.500" boxSize={8} />
-              <Text fontSize="2xl" fontWeight="bold" color="gray.800">
-                Analytics Dashboard
-              </Text>
-            </HStack>
-            <Text fontSize="md" color="gray.600">
-              Track your job search progress and performance metrics
-            </Text>
-          </VStack>
-
+    <Box>
+      <PageHeader
+        title="Analytics Dashboard"
+        subtitle="Track your job search progress and performance metrics"
+        icon={FiBarChart2}
+        breadcrumbs={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Analytics", href: "/analytics" },
+        ]}
+        action={
           <Button
             leftIcon={<Icon as={FiRefreshCw} />}
             colorScheme="brand"
@@ -193,176 +175,180 @@ const AnalyticsPage = () => {
           >
             Refresh Data
           </Button>
-        </HStack>
+        }
+      />
 
-        {/* Quick Stats Summary */}
-        {statusSummary && (
-          <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
-            <Stat>
-              <StatLabel>Total Jobs</StatLabel>
-              <StatNumber color="brand.500">
-                {statusSummary.total_jobs}
-              </StatNumber>
-              <StatHelpText>All saved jobs</StatHelpText>
-            </Stat>
+      <Container maxW="7xl" py={8}>
+        <VStack spacing={6} align="stretch">
+          {/* Quick Stats Summary */}
+          {statusSummary && (
+            <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
+              <Stat>
+                <StatLabel>Total Jobs</StatLabel>
+                <StatNumber color="brand.500">
+                  {statusSummary.total_jobs}
+                </StatNumber>
+                <StatHelpText>All saved jobs</StatHelpText>
+              </Stat>
 
-            <Stat>
-              <StatLabel>Matched</StatLabel>
-              <StatNumber color="green.500">
-                {statusSummary.status_summary?.matched || 0}
-              </StatNumber>
-              <StatHelpText>Good fit jobs</StatHelpText>
-            </Stat>
+              <Stat>
+                <StatLabel>Matched</StatLabel>
+                <StatNumber color="green.500">
+                  {statusSummary.status_summary?.matched || 0}
+                </StatNumber>
+                <StatHelpText>Good fit jobs</StatHelpText>
+              </Stat>
 
-            <Stat>
-              <StatLabel>Applied</StatLabel>
-              <StatNumber color="yellow.500">
-                {statusSummary.status_summary?.applied || 0}
-              </StatNumber>
-              <StatHelpText>Applications sent</StatHelpText>
-            </Stat>
+              <Stat>
+                <StatLabel>Applied</StatLabel>
+                <StatNumber color="yellow.500">
+                  {statusSummary.status_summary?.applied || 0}
+                </StatNumber>
+                <StatHelpText>Applications sent</StatHelpText>
+              </Stat>
 
-            <Stat>
-              <StatLabel>Avg. Match Score</StatLabel>
-              <StatNumber color="purple.500">
-                {transformedMatchData?.averageScore || 0}%
-              </StatNumber>
-              <StatHelpText>Resume compatibility</StatHelpText>
-            </Stat>
-          </SimpleGrid>
-        )}
+              <Stat>
+                <StatLabel>Avg. Match Score</StatLabel>
+                <StatNumber color="purple.500">
+                  {transformedMatchData?.averageScore || 0}%
+                </StatNumber>
+                <StatHelpText>Resume compatibility</StatHelpText>
+              </Stat>
+            </SimpleGrid>
+          )}
 
-        {/* Charts Grid */}
-        <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
-          {/* Job Status Summary Chart */}
-          <Card>
-            <CardHeader>
-              <HStack spacing={3}>
-                <Icon as={FiTarget} color="blue.500" />
-                <VStack align="start" spacing={0}>
-                  <Text fontSize="lg" fontWeight="semibold">
-                    Job Status Distribution
-                  </Text>
-                  <Text fontSize="sm" color="gray.500">
-                    Current status breakdown
-                  </Text>
-                </VStack>
-              </HStack>
-            </CardHeader>
-            <CardBody>
-              {loadingStatus ? (
-                <Box textAlign="center" py={8}>
-                  <Spinner size="lg" color="brand.500" />
-                </Box>
-              ) : statusError ? (
-                <Alert status="error">
-                  <AlertIcon />
-                  <AlertTitle>Failed to load!</AlertTitle>
-                  <AlertDescription>{statusError}</AlertDescription>
-                </Alert>
-              ) : (
-                <StatusSummaryChart
-                  data={statusSummary}
-                  isLoading={loadingStatus}
-                />
-              )}
-            </CardBody>
-          </Card>
-
-          {/* Jobs Over Time Chart */}
-          <Card>
-            <CardHeader>
-              <HStack justify="space-between" align="center">
+          {/* Charts Grid */}
+          <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
+            {/* Job Status Summary Chart */}
+            <Card>
+              <CardHeader>
                 <HStack spacing={3}>
-                  <Icon as={FiTrendingUp} color="green.500" />
+                  <Icon as={FiTarget} color="blue.500" />
                   <VStack align="start" spacing={0}>
                     <Text fontSize="lg" fontWeight="semibold">
-                      Jobs Over Time
+                      Job Status Distribution
                     </Text>
                     <Text fontSize="sm" color="gray.500">
-                      Job activity trends
+                      Current status breakdown
                     </Text>
                   </VStack>
                 </HStack>
+              </CardHeader>
+              <CardBody>
+                {loadingStatus ? (
+                  <Box textAlign="center" py={8}>
+                    <Spinner size="lg" color="brand.500" />
+                  </Box>
+                ) : statusError ? (
+                  <Alert status="error">
+                    <AlertIcon />
+                    <AlertTitle>Failed to load!</AlertTitle>
+                    <AlertDescription>{statusError}</AlertDescription>
+                  </Alert>
+                ) : (
+                  <StatusSummaryChart
+                    data={statusSummary}
+                    isLoading={loadingStatus}
+                  />
+                )}
+              </CardBody>
+            </Card>
 
-                <HStack spacing={2}>
-                  <Button
-                    size="xs"
-                    variant={timePeriod === "weekly" ? "solid" : "ghost"}
-                    colorScheme="brand"
-                    onClick={() => setTimePeriod("weekly")}
-                  >
-                    Weekly
-                  </Button>
-                  <Button
-                    size="xs"
-                    variant={timePeriod === "monthly" ? "solid" : "ghost"}
-                    colorScheme="brand"
-                    onClick={() => setTimePeriod("monthly")}
-                  >
-                    Monthly
-                  </Button>
+            {/* Jobs Over Time Chart */}
+            <Card>
+              <CardHeader>
+                <HStack justify="space-between" align="center">
+                  <HStack spacing={3}>
+                    <Icon as={FiTrendingUp} color="green.500" />
+                    <VStack align="start" spacing={0}>
+                      <Text fontSize="lg" fontWeight="semibold">
+                        Jobs Over Time
+                      </Text>
+                      <Text fontSize="sm" color="gray.500">
+                        Job activity trends
+                      </Text>
+                    </VStack>
+                  </HStack>
+
+                  <HStack spacing={2}>
+                    <Button
+                      size="xs"
+                      variant={timePeriod === "weekly" ? "solid" : "ghost"}
+                      colorScheme="brand"
+                      onClick={() => setTimePeriod("weekly")}
+                    >
+                      Weekly
+                    </Button>
+                    <Button
+                      size="xs"
+                      variant={timePeriod === "monthly" ? "solid" : "ghost"}
+                      colorScheme="brand"
+                      onClick={() => setTimePeriod("monthly")}
+                    >
+                      Monthly
+                    </Button>
+                  </HStack>
                 </HStack>
-              </HStack>
-            </CardHeader>
-            <CardBody>
-              {loadingOverTime ? (
-                <Box textAlign="center" py={8}>
-                  <Spinner size="lg" color="brand.500" />
-                </Box>
-              ) : overTimeError ? (
-                <Alert status="error">
-                  <AlertIcon />
-                  <AlertTitle>Failed to load!</AlertTitle>
-                  <AlertDescription>{overTimeError}</AlertDescription>
-                </Alert>
-              ) : (
-                <JobsOverTimeChart
-                  data={jobsOverTime}
-                  period={timePeriod}
-                  isLoading={loadingOverTime}
-                />
-              )}
-            </CardBody>
-          </Card>
+              </CardHeader>
+              <CardBody>
+                {loadingOverTime ? (
+                  <Box textAlign="center" py={8}>
+                    <Spinner size="lg" color="brand.500" />
+                  </Box>
+                ) : overTimeError ? (
+                  <Alert status="error">
+                    <AlertIcon />
+                    <AlertTitle>Failed to load!</AlertTitle>
+                    <AlertDescription>{overTimeError}</AlertDescription>
+                  </Alert>
+                ) : (
+                  <JobsOverTimeChart
+                    data={jobsOverTime}
+                    period={timePeriod}
+                    isLoading={loadingOverTime}
+                  />
+                )}
+              </CardBody>
+            </Card>
 
-          {/* Match Score Summary - Full Width */}
-          <Card gridColumn={{ base: "1", lg: "1 / -1" }}>
-            <CardHeader>
-              <HStack spacing={3}>
-                <Icon as={FiUsers} color="purple.500" />
-                <VStack align="start" spacing={0}>
-                  <Text fontSize="lg" fontWeight="semibold">
-                    Match Score Analysis
-                  </Text>
-                  <Text fontSize="sm" color="gray.500">
-                    Resume compatibility metrics
-                  </Text>
-                </VStack>
-              </HStack>
-            </CardHeader>
-            <CardBody>
-              {loadingMatchScore ? (
-                <Box textAlign="center" py={8}>
-                  <Spinner size="lg" color="brand.500" />
-                </Box>
-              ) : matchScoreError ? (
-                <Alert status="error">
-                  <AlertIcon />
-                  <AlertTitle>Failed to load!</AlertTitle>
-                  <AlertDescription>{matchScoreError}</AlertDescription>
-                </Alert>
-              ) : (
-                <MatchScoreChart
-                  data={matchScoreSummary}
-                  isLoading={loadingMatchScore}
-                />
-              )}
-            </CardBody>
-          </Card>
-        </SimpleGrid>
-      </VStack>
-    </Container>
+            {/* Match Score Summary - Full Width */}
+            <Card gridColumn={{ base: "1", lg: "1 / -1" }}>
+              <CardHeader>
+                <HStack spacing={3}>
+                  <Icon as={FiUsers} color="purple.500" />
+                  <VStack align="start" spacing={0}>
+                    <Text fontSize="lg" fontWeight="semibold">
+                      Match Score Analysis
+                    </Text>
+                    <Text fontSize="sm" color="gray.500">
+                      Resume compatibility metrics
+                    </Text>
+                  </VStack>
+                </HStack>
+              </CardHeader>
+              <CardBody>
+                {loadingMatchScore ? (
+                  <Box textAlign="center" py={8}>
+                    <Spinner size="lg" color="brand.500" />
+                  </Box>
+                ) : matchScoreError ? (
+                  <Alert status="error">
+                    <AlertIcon />
+                    <AlertTitle>Failed to load!</AlertTitle>
+                    <AlertDescription>{matchScoreError}</AlertDescription>
+                  </Alert>
+                ) : (
+                  <MatchScoreChart
+                    data={matchScoreSummary}
+                    isLoading={loadingMatchScore}
+                  />
+                )}
+              </CardBody>
+            </Card>
+          </SimpleGrid>
+        </VStack>
+      </Container>
+    </Box>
   );
 };
 

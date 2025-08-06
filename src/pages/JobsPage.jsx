@@ -41,6 +41,7 @@ import {
 } from "../services/jobs";
 import JobDetailModal from "../components/jobs/JobDetailModal";
 import { useAuth } from "../contexts/AuthContext";
+import PageHeader from "../components/common/PageHeader";
 
 const JobsPage = () => {
   const { user, isAuthenticated } = useAuth();
@@ -341,207 +342,211 @@ const JobsPage = () => {
   };
 
   return (
-    <Container maxW="7xl" py={8}>
-      <VStack spacing={6} align="stretch">
-        {/* Header */}
-        <Box>
-          <Text fontSize="3xl" fontWeight="bold" mb={2}>
-            Job Search
-          </Text>
-          <Text color="gray.600" mb={2}>
-            Find your next opportunity and track your applications
-          </Text>
-          <Text fontSize="sm" color="gray.500">
-            💡 Fast job searches fetch fresh opportunities from external job
-            boards
-          </Text>
-        </Box>
+    <Box>
+      <PageHeader
+        title="Job Search"
+        subtitle="Find your next opportunity and track your applications"
+        icon={FiSearch}
+      />
 
-        {/* Authentication Warning */}
-        {!isAuthenticated && (
-          <Alert status="warning">
-            <AlertIcon />
-            Please login to search and save jobs.
-          </Alert>
-        )}
+      <Container maxW="7xl" py={8}>
+        <VStack spacing={6} align="stretch">
+          {/* Info Note */}
+          <Box>
+            <Text fontSize="sm" color="gray.500">
+              💡 Fast job searches fetch fresh opportunities from external job
+              boards
+            </Text>
+          </Box>
 
-        {/* Tab Navigation */}
-        <ButtonGroup isAttached variant="outline">
-          <Button
-            colorScheme={activeTab === "search" ? "brand" : "gray"}
-            variant={activeTab === "search" ? "solid" : "outline"}
-            onClick={() => setActiveTab("search")}
-            leftIcon={<Icon as={FiSearch} />}
-            isDisabled={!isAuthenticated}
-          >
-            Search Jobs
-          </Button>
-          <Button
-            colorScheme={activeTab === "saved" ? "brand" : "gray"}
-            variant={activeTab === "saved" ? "solid" : "outline"}
-            onClick={() => setActiveTab("saved")}
-            leftIcon={<Icon as={FiBookmark} />}
-            isDisabled={!isAuthenticated}
-          >
-            Saved Jobs ({savedJobs.length})
-          </Button>
-        </ButtonGroup>
+          {/* Authentication Warning */}
+          {!isAuthenticated && (
+            <Alert status="warning">
+              <AlertIcon />
+              Please login to search and save jobs.
+            </Alert>
+          )}
 
-        {/* Search Form */}
-        {activeTab === "search" && (
-          <Card>
-            <CardBody>
-              <VStack spacing={4}>
-                <SimpleGrid
-                  columns={{ base: 1, md: 2, lg: 4 }}
-                  spacing={4}
-                  w="full"
-                >
-                  {/* Keyword Search */}
-                  <InputGroup>
-                    <InputLeftElement pointerEvents="none">
-                      <Icon as={FiSearch} color="gray.400" />
-                    </InputLeftElement>
-                    <Input
-                      placeholder="Job title, skills, company..."
-                      value={searchParams.keyword}
+          {/* Tab Navigation */}
+          <ButtonGroup isAttached variant="outline">
+            <Button
+              colorScheme={activeTab === "search" ? "brand" : "gray"}
+              variant={activeTab === "search" ? "solid" : "outline"}
+              onClick={() => setActiveTab("search")}
+              leftIcon={<Icon as={FiSearch} />}
+              isDisabled={!isAuthenticated}
+            >
+              Search Jobs
+            </Button>
+            <Button
+              colorScheme={activeTab === "saved" ? "brand" : "gray"}
+              variant={activeTab === "saved" ? "solid" : "outline"}
+              onClick={() => setActiveTab("saved")}
+              leftIcon={<Icon as={FiBookmark} />}
+              isDisabled={!isAuthenticated}
+            >
+              Saved Jobs ({savedJobs.length})
+            </Button>
+          </ButtonGroup>
+
+          {/* Search Form */}
+          {activeTab === "search" && (
+            <Card>
+              <CardBody>
+                <VStack spacing={4}>
+                  <SimpleGrid
+                    columns={{ base: 1, md: 2, lg: 4 }}
+                    spacing={4}
+                    w="full"
+                  >
+                    {/* Keyword Search */}
+                    <InputGroup>
+                      <InputLeftElement pointerEvents="none">
+                        <Icon as={FiSearch} color="gray.400" />
+                      </InputLeftElement>
+                      <Input
+                        placeholder="Job title, skills, company..."
+                        value={searchParams.keyword}
+                        onChange={(e) =>
+                          updateSearchParam("keyword", e.target.value)
+                        }
+                        onKeyPress={handleKeyPress}
+                        isDisabled={!isAuthenticated}
+                      />
+                    </InputGroup>
+
+                    {/* Location */}
+                    <InputGroup>
+                      <InputLeftElement pointerEvents="none">
+                        <Icon as={FiMapPin} color="gray.400" />
+                      </InputLeftElement>
+                      <Input
+                        placeholder="Location (optional)"
+                        value={searchParams.location}
+                        onChange={(e) =>
+                          updateSearchParam("location", e.target.value)
+                        }
+                        onKeyPress={handleKeyPress}
+                        isDisabled={!isAuthenticated}
+                      />
+                    </InputGroup>
+
+                    {/* Job Source */}
+                    <Select
+                      value={searchParams.source}
                       onChange={(e) =>
-                        updateSearchParam("keyword", e.target.value)
+                        updateSearchParam("source", e.target.value)
                       }
-                      onKeyPress={handleKeyPress}
                       isDisabled={!isAuthenticated}
-                    />
-                  </InputGroup>
+                    >
+                      <option value={JOB_SOURCES.REMOTEOK}>RemoteOK</option>
+                    </Select>
 
-                  {/* Location */}
-                  <InputGroup>
-                    <InputLeftElement pointerEvents="none">
-                      <Icon as={FiMapPin} color="gray.400" />
-                    </InputLeftElement>
-                    <Input
-                      placeholder="Location (optional)"
-                      value={searchParams.location}
+                    {/* Sort By */}
+                    <Select
+                      value={searchParams.sort_by}
                       onChange={(e) =>
-                        updateSearchParam("location", e.target.value)
+                        updateSearchParam("sort_by", e.target.value)
                       }
-                      onKeyPress={handleKeyPress}
                       isDisabled={!isAuthenticated}
-                    />
-                  </InputGroup>
+                    >
+                      <option value={SORT_OPTIONS.DATE}>Most Recent</option>
+                      <option value={SORT_OPTIONS.MATCH_SCORE}>
+                        Best Match
+                      </option>
+                    </Select>
+                  </SimpleGrid>
 
-                  {/* Job Source */}
-                  <Select
-                    value={searchParams.source}
-                    onChange={(e) =>
-                      updateSearchParam("source", e.target.value)
-                    }
+                  {/* Search Button */}
+                  <Button
+                    colorScheme="brand"
+                    size="lg"
+                    leftIcon={<Icon as={FiSearch} />}
+                    onClick={handleSearch}
+                    isLoading={loading}
+                    loadingText="Searching for jobs..."
+                    w={{ base: "full", md: "auto" }}
                     isDisabled={!isAuthenticated}
                   >
-                    <option value={JOB_SOURCES.REMOTEOK}>RemoteOK</option>
-                  </Select>
+                    Search Jobs
+                  </Button>
+                </VStack>
+              </CardBody>
+            </Card>
+          )}
 
-                  {/* Sort By */}
-                  <Select
-                    value={searchParams.sort_by}
-                    onChange={(e) =>
-                      updateSearchParam("sort_by", e.target.value)
-                    }
-                    isDisabled={!isAuthenticated}
-                  >
-                    <option value={SORT_OPTIONS.DATE}>Most Recent</option>
-                    <option value={SORT_OPTIONS.MATCH_SCORE}>Best Match</option>
-                  </Select>
-                </SimpleGrid>
+          {/* Error Display */}
+          {error && (
+            <Alert status="error">
+              <AlertIcon />
+              <Text>{error}</Text>
+            </Alert>
+          )}
 
-                {/* Search Button */}
-                <Button
-                  colorScheme="brand"
-                  size="lg"
-                  leftIcon={<Icon as={FiSearch} />}
-                  onClick={handleSearch}
-                  isLoading={loading}
-                  loadingText="Searching for jobs..."
-                  w={{ base: "full", md: "auto" }}
-                  isDisabled={!isAuthenticated}
-                >
-                  Search Jobs
-                </Button>
-              </VStack>
-            </CardBody>
-          </Card>
-        )}
-
-        {/* Error Display */}
-        {error && (
-          <Alert status="error">
-            <AlertIcon />
-            <Text>{error}</Text>
-          </Alert>
-        )}
-
-        {/* Loading Spinner */}
-        {loading && (
-          <Flex justify="center" py={8} direction="column" align="center">
-            <Spinner size="xl" color="brand.500" mb={4} />
-            <Text color="gray.600" fontSize="sm" textAlign="center">
-              Searching for job opportunities...
-            </Text>
-            <Text color="gray.500" fontSize="xs" mt={2}>
-              This should be quick!
-            </Text>
-          </Flex>
-        )}
-
-        {/* Jobs Display */}
-        {!loading && (
-          <VStack spacing={4} align="stretch">
-            {/* Results Count */}
-            {((activeTab === "search" && jobs.length > 0) ||
-              (activeTab === "saved" && savedJobs.length > 0)) && (
-              <Text color="gray.600">
-                {activeTab === "search"
-                  ? `Found ${jobs.length} jobs`
-                  : `${savedJobs.length} saved jobs`}
+          {/* Loading Spinner */}
+          {loading && (
+            <Flex justify="center" py={8} direction="column" align="center">
+              <Spinner size="xl" color="brand.500" mb={4} />
+              <Text color="gray.600" fontSize="sm" textAlign="center">
+                Searching for job opportunities...
               </Text>
-            )}
+              <Text color="gray.500" fontSize="xs" mt={2}>
+                This should be quick!
+              </Text>
+            </Flex>
+          )}
 
-            {/* Job Cards */}
-            <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={4}>
-              {(activeTab === "search"
-                ? Array.isArray(jobs)
-                  ? jobs
-                  : []
-                : Array.isArray(savedJobs)
-                ? savedJobs
-                : []
-              ).map((job, index) => (
-                <JobCard
-                  key={job.id || `${job.title}-${index}`}
-                  job={job}
-                  onSave={activeTab === "search" ? handleSaveJob : null}
-                  isSaving={saving[job.id || job.title]}
-                  showSaveButton={activeTab === "search"}
-                  onClick={handleJobClick}
-                />
-              ))}
-            </SimpleGrid>
-
-            {/* Empty State */}
-            {((activeTab === "search" &&
-              jobs.length === 0 &&
-              searchParams.keyword) ||
-              (activeTab === "saved" && savedJobs.length === 0)) && (
-              <Box textAlign="center" py={8}>
-                <Text fontSize="lg" color="gray.500">
+          {/* Jobs Display */}
+          {!loading && (
+            <VStack spacing={4} align="stretch">
+              {/* Results Count */}
+              {((activeTab === "search" && jobs.length > 0) ||
+                (activeTab === "saved" && savedJobs.length > 0)) && (
+                <Text color="gray.600">
                   {activeTab === "search"
-                    ? "No jobs found. Try adjusting your search criteria."
-                    : "No saved jobs yet. Start by searching and saving some jobs!"}
+                    ? `Found ${jobs.length} jobs`
+                    : `${savedJobs.length} saved jobs`}
                 </Text>
-              </Box>
-            )}
-          </VStack>
-        )}
-      </VStack>
+              )}
+
+              {/* Job Cards */}
+              <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={4}>
+                {(activeTab === "search"
+                  ? Array.isArray(jobs)
+                    ? jobs
+                    : []
+                  : Array.isArray(savedJobs)
+                  ? savedJobs
+                  : []
+                ).map((job, index) => (
+                  <JobCard
+                    key={job.id || `${job.title}-${index}`}
+                    job={job}
+                    onSave={activeTab === "search" ? handleSaveJob : null}
+                    isSaving={saving[job.id || job.title]}
+                    showSaveButton={activeTab === "search"}
+                    onClick={handleJobClick}
+                  />
+                ))}
+              </SimpleGrid>
+
+              {/* Empty State */}
+              {((activeTab === "search" &&
+                jobs.length === 0 &&
+                searchParams.keyword) ||
+                (activeTab === "saved" && savedJobs.length === 0)) && (
+                <Box textAlign="center" py={8}>
+                  <Text fontSize="lg" color="gray.500">
+                    {activeTab === "search"
+                      ? "No jobs found. Try adjusting your search criteria."
+                      : "No saved jobs yet. Start by searching and saving some jobs!"}
+                  </Text>
+                </Box>
+              )}
+            </VStack>
+          )}
+        </VStack>
+      </Container>
 
       {/* Job Detail Modal */}
       <JobDetailModal
@@ -550,7 +555,7 @@ const JobsPage = () => {
         job={selectedJob}
         onSave={handleSaveJob}
       />
-    </Container>
+    </Box>
   );
 };
 

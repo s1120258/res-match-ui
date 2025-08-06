@@ -76,7 +76,7 @@ const LandingPage = () => {
         <Flex justify="space-between" align="center">
           <HStack spacing={3}>
             <Image src={logoImage} alt="ResMatch Logo" boxSize="40px" />
-            <Heading size="lg" color="blue.500">
+            <Heading size="lg" color="#3972e6">
               ResMatch
             </Heading>
           </HStack>

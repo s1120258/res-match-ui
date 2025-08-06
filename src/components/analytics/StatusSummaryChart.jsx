@@ -1,11 +1,9 @@
 import React from "react";
 import {
   Box,
-  Text,
   VStack,
   HStack,
   Badge,
-  Icon,
   useColorModeValue,
 } from "@chakra-ui/react";
 import {
@@ -18,6 +16,8 @@ import {
 } from "recharts";
 import { FiCircle } from "react-icons/fi";
 import { analyticsUtils } from "../../services/analytics";
+import ConsistentIcon from "../common/ConsistentIcon";
+import ConsistentText from "../common/ConsistentText";
 
 const StatusSummaryChart = ({ data, isLoading = false }) => {
   // Transform data for chart
@@ -43,17 +43,22 @@ const StatusSummaryChart = ({ data, isLoading = false }) => {
         >
           <VStack spacing={1} align="start">
             <HStack spacing={2}>
-              <Icon as={FiCircle} color={data.color} boxSize={3} />
-              <Text fontSize="sm" fontWeight="semibold">
+              <ConsistentIcon
+                as={FiCircle}
+                size="xs"
+                context="status"
+                color={data.color}
+              />
+              <ConsistentText variant="supportText" fontWeight="semibold">
                 {data.payload.name}
-              </Text>
+              </ConsistentText>
             </HStack>
-            <Text fontSize="sm" color="gray.600">
+            <ConsistentText variant="supportText" color="gray.600">
               Jobs: {data.value}
-            </Text>
-            <Text fontSize="xs" color="gray.500">
+            </ConsistentText>
+            <ConsistentText variant="caption" color="gray.500">
               {((data.value / data.payload.total) * 100).toFixed(1)}%
-            </Text>
+            </ConsistentText>
           </VStack>
         </Box>
       );
@@ -73,10 +78,15 @@ const StatusSummaryChart = ({ data, isLoading = false }) => {
       <HStack justify="center" wrap="wrap" spacing={4} mt={4}>
         {payload.map((entry, index) => (
           <HStack key={index} spacing={2}>
-            <Icon as={FiCircle} color={entry.color} boxSize={3} />
-            <Text fontSize="sm" color="gray.600">
+            <ConsistentIcon
+              as={FiCircle}
+              size="xs"
+              context="status"
+              color={entry.color}
+            />
+            <ConsistentText variant="supportText" color="gray.600">
               {entry.value}
-            </Text>
+            </ConsistentText>
             <Badge colorScheme="gray" size="sm">
               {entry.payload.value}
             </Badge>
@@ -95,14 +105,23 @@ const StatusSummaryChart = ({ data, isLoading = false }) => {
     return (
       <Box h="300px" display="flex" alignItems="center" justifyContent="center">
         <VStack spacing={3}>
-          <Icon as={FiCircle} color="gray.300" boxSize={12} />
+          <ConsistentIcon
+            as={FiCircle}
+            size="2xl"
+            context="status"
+            color="gray.300"
+          />
           <VStack spacing={1} textAlign="center">
-            <Text fontSize="md" color="gray.500" fontWeight="medium">
+            <ConsistentText
+              variant="bodyText"
+              color="gray.500"
+              fontWeight="medium"
+            >
               No job data available
-            </Text>
-            <Text fontSize="sm" color="gray.400">
+            </ConsistentText>
+            <ConsistentText variant="supportText" color="gray.400">
               Start saving jobs to see your status distribution
-            </Text>
+            </ConsistentText>
           </VStack>
         </VStack>
       </Box>

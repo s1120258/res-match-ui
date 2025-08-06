@@ -5,12 +5,12 @@ import {
   CardHeader,
   Box,
   Heading,
-  Text,
-  Icon,
   HStack,
   VStack,
   useColorModeValue,
 } from "@chakra-ui/react";
+import ConsistentIcon from "./ConsistentIcon";
+import ConsistentText from "./ConsistentText";
 
 /**
  * Enhanced Card Component with modern design patterns
@@ -61,23 +61,31 @@ const EnhancedCard = ({
                   borderRadius="lg"
                   bg={`${iconColor.split(".")[0]}.50`}
                 >
-                  <Icon as={icon} color={iconColor} boxSize={5} />
+                  <ConsistentIcon
+                    as={icon}
+                    size="md"
+                    context="action"
+                    color={iconColor}
+                  />
                 </Box>
               )}
               {title && (
                 <VStack spacing={1} align="start">
-                  <Heading
-                    size="md"
-                    fontWeight="600"
+                  <ConsistentText
+                    variant="cardTitle"
                     color="neutral.800"
                     lineHeight="1.3"
                   >
                     {title}
-                  </Heading>
+                  </ConsistentText>
                   {subtitle && (
-                    <Text fontSize="sm" color="neutral.500" lineHeight="1.4">
+                    <ConsistentText
+                      variant="supportText"
+                      color="neutral.500"
+                      lineHeight="1.4"
+                    >
                       {subtitle}
-                    </Text>
+                    </ConsistentText>
                   )}
                 </VStack>
               )}

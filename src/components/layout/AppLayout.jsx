@@ -5,7 +5,6 @@ import {
   HStack,
   VStack,
   Button,
-  Text,
   IconButton,
   useDisclosure,
   Drawer,
@@ -22,7 +21,6 @@ import {
   MenuItem,
   MenuDivider,
   Badge,
-  Icon,
   useColorModeValue,
   Divider,
   Image,
@@ -43,6 +41,8 @@ import {
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import logoImage from "../../assets/icons/custom/logo.svg";
+import ConsistentIcon from "../common/ConsistentIcon";
+import ConsistentText from "../common/ConsistentText";
 
 const AppLayout = ({ children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -106,10 +106,20 @@ const AppLayout = ({ children }) => {
         variant={isActive ? "solid" : "ghost"}
         colorScheme={isActive ? "brand" : "gray"}
         justifyContent={isSidebar ? "flex-start" : "center"}
-        leftIcon={<Icon as={item.icon} boxSize={isSidebar ? 5 : 4} />}
+        leftIcon={
+          <ConsistentIcon
+            as={item.icon}
+            size={isSidebar ? "md" : "sm"}
+            context="navigation"
+          />
+        }
         rightIcon={
           isSidebar && isActive ? (
-            <Icon as={FiChevronRight} boxSize={4} />
+            <ConsistentIcon
+              as={FiChevronRight}
+              size="sm"
+              context="navigation"
+            />
           ) : undefined
         }
         w={isSidebar ? "full" : "auto"}
@@ -138,16 +148,17 @@ const AppLayout = ({ children }) => {
         }
       >
         <VStack spacing={0} align={isSidebar ? "start" : "center"} w="full">
-          <Text fontWeight="600">{item.name}</Text>
+          <ConsistentText variant="supportText" fontWeight="600">
+            {item.name}
+          </ConsistentText>
           {isSidebar && (
-            <Text
-              fontSize="xs"
+            <ConsistentText
+              variant="caption"
               color={isActive ? "brand.200" : "neutral.500"}
-              fontWeight="400"
               lineHeight="1.2"
             >
               {item.description}
-            </Text>
+            </ConsistentText>
           )}
         </VStack>
       </Button>
@@ -190,22 +201,21 @@ const AppLayout = ({ children }) => {
               objectFit="contain"
             />
             <VStack spacing={0} align="start">
-              <Text
-                fontSize="xl"
-                fontWeight="800"
+              <ConsistentText
+                variant="cardTitle"
                 color={brandColor}
                 lineHeight="1.2"
               >
                 ResMatch
-              </Text>
-              <Text
-                fontSize="xs"
+              </ConsistentText>
+              <ConsistentText
+                variant="caption"
                 color="neutral.500"
                 fontWeight="500"
                 lineHeight="1"
               >
                 AI Career Platform
-              </Text>
+              </ConsistentText>
             </VStack>
           </HStack>
         </HStack>
@@ -277,14 +287,18 @@ const AppLayout = ({ children }) => {
               py={2}
             >
               <Box px={4} py={3}>
-                <Text fontSize="sm" fontWeight="600" color="neutral.800">
+                <ConsistentText
+                  variant="supportText"
+                  fontWeight="600"
+                  color="neutral.800"
+                >
                   {user?.firstname && user?.lastname
                     ? `${user.firstname} ${user.lastname}`
                     : "User"}
-                </Text>
-                <Text fontSize="xs" color="neutral.500">
+                </ConsistentText>
+                <ConsistentText variant="caption" color="neutral.500">
                   {user?.email}
-                </Text>
+                </ConsistentText>
               </Box>
               <Divider />
               <MenuItem
@@ -339,8 +353,8 @@ const AppLayout = ({ children }) => {
     <VStack spacing={2} align="stretch" p={6}>
       {/* Navigation Section */}
       <VStack spacing={1} align="stretch">
-        <Text
-          fontSize="xs"
+        <ConsistentText
+          variant="caption"
           fontWeight="600"
           color="neutral.500"
           textTransform="uppercase"
@@ -349,7 +363,7 @@ const AppLayout = ({ children }) => {
           px={2}
         >
           Navigation
-        </Text>
+        </ConsistentText>
         {navItems.map((item) => (
           <NavItem key={item.path} item={item} isSidebar />
         ))}
@@ -369,14 +383,18 @@ const AppLayout = ({ children }) => {
             color="white"
           />
           <VStack spacing={0} align="start" flex={1}>
-            <Text fontSize="sm" fontWeight="600" noOfLines={1}>
+            <ConsistentText
+              variant="supportText"
+              fontWeight="600"
+              noOfLines={1}
+            >
               {user?.firstname && user?.lastname
                 ? `${user.firstname} ${user.lastname}`
                 : "User"}
-            </Text>
-            <Text fontSize="xs" color="neutral.500" noOfLines={1}>
+            </ConsistentText>
+            <ConsistentText variant="caption" color="neutral.500" noOfLines={1}>
               {user?.email}
-            </Text>
+            </ConsistentText>
           </VStack>
         </HStack>
       </Box>
@@ -404,9 +422,9 @@ const AppLayout = ({ children }) => {
               h="8"
               objectFit="contain"
             />
-            <Text color={brandColor} fontWeight="800" fontSize="lg">
+            <ConsistentText variant="cardTitle" color={brandColor}>
               ResMatch
-            </Text>
+            </ConsistentText>
           </HStack>
         </DrawerHeader>
         <DrawerBody p={0}>

@@ -1,10 +1,8 @@
 import React from "react";
 import {
   Box,
-  Text,
   VStack,
   HStack,
-  Icon,
   Badge,
   useColorModeValue,
 } from "@chakra-ui/react";
@@ -21,6 +19,8 @@ import {
 } from "recharts";
 import { FiTrendingUp, FiCalendar } from "react-icons/fi";
 import { analyticsUtils } from "../../services/analytics";
+import ConsistentIcon from "../common/ConsistentIcon";
+import ConsistentText from "../common/ConsistentText";
 
 const JobsOverTimeChart = ({ data, period = "weekly", isLoading = false }) => {
   // Transform data for chart
@@ -46,17 +46,22 @@ const JobsOverTimeChart = ({ data, period = "weekly", isLoading = false }) => {
         >
           <VStack spacing={1} align="start">
             <HStack spacing={2}>
-              <Icon as={FiCalendar} color="blue.500" boxSize={3} />
-              <Text fontSize="sm" fontWeight="semibold">
+              <ConsistentIcon
+                as={FiCalendar}
+                size="xs"
+                context="status"
+                color="blue.500"
+              />
+              <ConsistentText variant="supportText" fontWeight="semibold">
                 {data.payload.displayPeriod}
-              </Text>
+              </ConsistentText>
             </HStack>
-            <Text fontSize="sm" color="gray.600">
+            <ConsistentText variant="supportText" color="gray.600">
               Jobs: {data.value}
-            </Text>
-            <Text fontSize="xs" color="gray.500">
+            </ConsistentText>
+            <ConsistentText variant="caption" color="gray.500">
               {period === "weekly" ? "Weekly total" : "Monthly total"}
-            </Text>
+            </ConsistentText>
           </VStack>
         </Box>
       );
@@ -69,14 +74,23 @@ const JobsOverTimeChart = ({ data, period = "weekly", isLoading = false }) => {
     return (
       <Box h="300px" display="flex" alignItems="center" justifyContent="center">
         <VStack spacing={3}>
-          <Icon as={FiTrendingUp} color="gray.300" boxSize={12} />
+          <ConsistentIcon
+            as={FiTrendingUp}
+            size="2xl"
+            context="status"
+            color="gray.300"
+          />
           <VStack spacing={1} textAlign="center">
-            <Text fontSize="md" color="gray.500" fontWeight="medium">
+            <ConsistentText
+              variant="bodyText"
+              color="gray.500"
+              fontWeight="medium"
+            >
               No activity data available
-            </Text>
-            <Text fontSize="sm" color="gray.400">
+            </ConsistentText>
+            <ConsistentText variant="supportText" color="gray.400">
               Job activity will appear here as you save jobs
-            </Text>
+            </ConsistentText>
           </VStack>
         </VStack>
       </Box>
@@ -99,9 +113,9 @@ const JobsOverTimeChart = ({ data, period = "weekly", isLoading = false }) => {
       {/* Chart Header Stats */}
       <HStack justify="space-between" align="center" mb={3}>
         <HStack spacing={2}>
-          <Text fontSize="sm" color="gray.600">
+          <ConsistentText variant="supportText" color="gray.600">
             Total Jobs:
-          </Text>
+          </ConsistentText>
           <Badge colorScheme="blue" variant="subtle">
             {chartData.reduce((sum, item) => sum + item.count, 0)}
           </Badge>
@@ -109,12 +123,16 @@ const JobsOverTimeChart = ({ data, period = "weekly", isLoading = false }) => {
 
         {trend !== 0 && (
           <HStack spacing={1}>
-            <Text fontSize="xs" color="gray.500">
+            <ConsistentText variant="caption" color="gray.500">
               Trend:
-            </Text>
-            <Text fontSize="xs" color={trendColor} fontWeight="medium">
+            </ConsistentText>
+            <ConsistentText
+              variant="caption"
+              color={trendColor}
+              fontWeight="medium"
+            >
               {trendIcon} {Math.abs(trend)}
-            </Text>
+            </ConsistentText>
           </HStack>
         )}
       </HStack>

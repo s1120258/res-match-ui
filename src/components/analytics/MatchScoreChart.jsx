@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Box,
-  Text,
   VStack,
   HStack,
   SimpleGrid,
@@ -11,7 +10,6 @@ import {
   StatLabel,
   StatNumber,
   StatHelpText,
-  Icon,
   Badge,
   useColorModeValue,
 } from "@chakra-ui/react";
@@ -33,6 +31,8 @@ import {
   FiAward,
 } from "react-icons/fi";
 import { analyticsUtils } from "../../services/analytics";
+import ConsistentIcon from "../common/ConsistentIcon";
+import ConsistentText from "../common/ConsistentText";
 
 const MatchScoreChart = ({ data, isLoading = false }) => {
   // Transform data
@@ -62,15 +62,15 @@ const MatchScoreChart = ({ data, isLoading = false }) => {
           borderColor="gray.200"
         >
           <VStack spacing={1} align="start">
-            <Text fontSize="sm" fontWeight="semibold">
+            <ConsistentText variant="supportText" fontWeight="semibold">
               {label} Match Scores
-            </Text>
-            <Text fontSize="sm" color="gray.600">
+            </ConsistentText>
+            <ConsistentText variant="supportText" color="gray.600">
               Count: {data.value}
-            </Text>
-            <Text fontSize="xs" color="gray.500">
+            </ConsistentText>
+            <ConsistentText variant="caption" color="gray.500">
               {data.payload.percentage}% of total
-            </Text>
+            </ConsistentText>
           </VStack>
         </Box>
       );
@@ -83,14 +83,23 @@ const MatchScoreChart = ({ data, isLoading = false }) => {
     return (
       <Box h="300px" display="flex" alignItems="center" justifyContent="center">
         <VStack spacing={3}>
-          <Icon as={FiTarget} color="gray.300" boxSize={12} />
+          <ConsistentIcon
+            as={FiTarget}
+            size="2xl"
+            context="status"
+            color="gray.300"
+          />
           <VStack spacing={1} textAlign="center">
-            <Text fontSize="md" color="gray.500" fontWeight="medium">
+            <ConsistentText
+              variant="bodyText"
+              color="gray.500"
+              fontWeight="medium"
+            >
               No match score data available
-            </Text>
-            <Text fontSize="sm" color="gray.400">
+            </ConsistentText>
+            <ConsistentText variant="supportText" color="gray.400">
               Match scores will appear as you analyze job compatibility
-            </Text>
+            </ConsistentText>
           </VStack>
         </VStack>
       </Box>
@@ -117,7 +126,12 @@ const MatchScoreChart = ({ data, isLoading = false }) => {
                 {averageScore}%
               </StatNumber>
               <StatHelpText fontSize="xs">
-                <Icon as={FiTarget} mr={1} />
+                <ConsistentIcon
+                  as={FiTarget}
+                  size="xs"
+                  context="status"
+                  mr={1}
+                />
                 Overall compatibility
               </StatHelpText>
             </Stat>
@@ -134,7 +148,12 @@ const MatchScoreChart = ({ data, isLoading = false }) => {
                 {maxScore}%
               </StatNumber>
               <StatHelpText fontSize="xs">
-                <Icon as={FiTrendingUp} mr={1} />
+                <ConsistentIcon
+                  as={FiTrendingUp}
+                  size="xs"
+                  context="success"
+                  mr={1}
+                />
                 Best match
               </StatHelpText>
             </Stat>
@@ -151,7 +170,12 @@ const MatchScoreChart = ({ data, isLoading = false }) => {
                 {minScore}%
               </StatNumber>
               <StatHelpText fontSize="xs">
-                <Icon as={FiTrendingDown} mr={1} />
+                <ConsistentIcon
+                  as={FiTrendingDown}
+                  size="xs"
+                  context="warning"
+                  mr={1}
+                />
                 Needs improvement
               </StatHelpText>
             </Stat>
@@ -163,12 +187,12 @@ const MatchScoreChart = ({ data, isLoading = false }) => {
       <Box>
         <HStack justify="space-between" align="center" mb={4}>
           <VStack align="start" spacing={0}>
-            <Text fontSize="md" fontWeight="semibold">
+            <ConsistentText variant="cardTitle" fontWeight="semibold">
               Score Distribution
-            </Text>
-            <Text fontSize="sm" color="gray.500">
+            </ConsistentText>
+            <ConsistentText variant="supportText" color="gray.500">
               Breakdown by compatibility level
-            </Text>
+            </ConsistentText>
           </VStack>
 
           <Badge colorScheme="purple" variant="subtle">
@@ -236,10 +260,15 @@ const MatchScoreChart = ({ data, isLoading = false }) => {
             borderRadius="md"
           >
             <VStack spacing={2}>
-              <Icon as={FiAward} color="gray.400" boxSize={8} />
-              <Text fontSize="sm" color="gray.500">
+              <ConsistentIcon
+                as={FiAward}
+                size="xl"
+                context="status"
+                color="gray.400"
+              />
+              <ConsistentText variant="supportText" color="gray.500">
                 No distribution data to display
-              </Text>
+              </ConsistentText>
             </VStack>
           </Box>
         )}

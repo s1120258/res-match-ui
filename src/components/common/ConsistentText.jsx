@@ -16,7 +16,7 @@ const ConsistentText = ({ variant = "bodyText", children, ...props }) => {
     theme.designTokens?.textVariants?.[variant] || theme.textStyles?.[variant];
 
   return (
-    <Text sx={textStyle} {...props}>
+    <Text {...textStyle} {...props}>
       {children}
     </Text>
   );

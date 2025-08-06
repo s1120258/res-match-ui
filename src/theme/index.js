@@ -77,11 +77,11 @@ const components = {
         transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
       },
       ghost: {
-        color: "neutral.600",
+        color: "gray.600",
         fontWeight: "500",
         _hover: {
-          bg: "neutral.100",
-          color: "neutral.800",
+          bg: "gray.100",
+          color: "gray.800",
         },
       },
     },
@@ -117,7 +117,7 @@ const components = {
       container: {
         borderRadius: "xl",
         borderWidth: "1px",
-        borderColor: "neutral.200",
+        borderColor: "gray.200",
         bg: "white",
         boxShadow:
           "0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
@@ -126,7 +126,7 @@ const components = {
           transform: "translateY(-2px)",
           boxShadow:
             "0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-          borderColor: "neutral.300",
+          borderColor: "gray.300",
         },
       },
     },
@@ -162,7 +162,7 @@ const components = {
           borderRadius: "lg",
           borderWidth: "2px",
           _hover: {
-            borderColor: "neutral.400",
+            borderColor: "gray.400",
           },
           _focus: {
             borderColor: "brand.500",
@@ -181,7 +181,7 @@ const components = {
         borderRadius: "lg",
         borderWidth: "2px",
         _hover: {
-          borderColor: "neutral.400",
+          borderColor: "gray.400",
         },
         _focus: {
           borderColor: "brand.500",
@@ -200,7 +200,7 @@ const components = {
           borderRadius: "lg",
           borderWidth: "2px",
           _hover: {
-            borderColor: "neutral.400",
+            borderColor: "gray.400",
           },
           _focus: {
             borderColor: "brand.500",
@@ -260,7 +260,7 @@ const components = {
     },
     baseStyle: {
       track: {
-        color: "neutral.200",
+        color: "gray.200",
       },
     },
   },
@@ -277,15 +277,15 @@ const components = {
       number: {
         fontFamily: "mono",
         fontWeight: "700",
-        color: "neutral.800",
+        color: "gray.800",
       },
       label: {
         fontWeight: "500",
-        color: "neutral.600",
+        color: "gray.600",
         fontSize: "sm",
       },
       helpText: {
-        color: "neutral.500",
+        color: "gray.500",
         fontSize: "xs",
       },
     },
@@ -319,34 +319,34 @@ const designTokens = {
       fontWeight: "800",
       lineHeight: "1.2",
       letterSpacing: "-0.02em",
-      color: "neutral.800",
+      // Remove hardcoded color to allow prop override
     },
     sectionTitle: {
       fontSize: ["lg", "xl", "2xl"],
       fontWeight: "700",
       lineHeight: "1.3",
-      color: "neutral.800",
+      // Remove hardcoded color to allow prop override
     },
     cardTitle: {
       fontSize: ["md", "lg"],
       fontWeight: "600",
       lineHeight: "1.4",
-      color: "neutral.800",
+      // Remove hardcoded color to allow prop override
     },
     bodyText: {
       fontSize: ["sm", "md"],
       lineHeight: "1.6",
-      color: "neutral.700",
+      // Remove hardcoded color to allow prop override
     },
     supportText: {
       fontSize: ["xs", "sm"],
       lineHeight: "1.5",
-      color: "neutral.600",
+      // Remove hardcoded color to allow prop override
     },
     caption: {
       fontSize: ["xs"],
       lineHeight: "1.4",
-      color: "neutral.500",
+      // Remove hardcoded color to allow prop override
     },
   },
 };
@@ -373,11 +373,11 @@ const textStyles = {
   body: {
     fontSize: "md",
     lineHeight: "1.6",
-    color: "neutral.700",
+    color: "gray.700",
   },
   caption: {
     fontSize: "sm",
-    color: "neutral.500",
+    color: "gray.500",
     lineHeight: "1.5",
   },
   // Add semantic text styles from design tokens
@@ -388,12 +388,12 @@ const textStyles = {
 const styles = {
   global: {
     "html, body": {
-      bg: "neutral.50",
-      color: "neutral.800",
+      bg: "gray.50",
+      color: "gray.800",
       lineHeight: "1.6",
     },
     "*": {
-      borderColor: "neutral.200",
+      borderColor: "gray.200",
     },
     "::selection": {
       bg: "brand.100",

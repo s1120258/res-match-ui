@@ -54,8 +54,8 @@ const AppLayout = ({ children }) => {
   // Color values for modern design
   const headerBg = useColorModeValue("white", "gray.800");
   const sidebarBg = useColorModeValue("white", "gray.800");
-  const borderColor = useColorModeValue("neutral.200", "gray.600");
-  const mainBg = useColorModeValue("neutral.50", "gray.900");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const mainBg = useColorModeValue("gray.50", "gray.900");
   const brandColor = useColorModeValue("brand.500", "brand.300");
 
   const handleLogout = () => {
@@ -134,7 +134,7 @@ const AppLayout = ({ children }) => {
         _hover={
           !isActive
             ? {
-                bg: useColorModeValue("neutral.100", "gray.700"),
+                bg: useColorModeValue("gray.100", "gray.700"),
                 transform: "translateY(-1px)",
               }
             : undefined
@@ -154,7 +154,7 @@ const AppLayout = ({ children }) => {
           {isSidebar && (
             <ConsistentText
               variant="caption"
-              color={isActive ? "brand.200" : "neutral.500"}
+              color={isActive ? "brand.200" : "gray.500"}
               lineHeight="1.2"
             >
               {item.description}
@@ -188,7 +188,7 @@ const AppLayout = ({ children }) => {
               aria-label="Open menu"
               borderRadius="lg"
               _hover={{
-                bg: useColorModeValue("neutral.100", "gray.700"),
+                bg: useColorModeValue("gray.100", "gray.700"),
               }}
             />
           )}
@@ -210,7 +210,7 @@ const AppLayout = ({ children }) => {
               </ConsistentText>
               <ConsistentText
                 variant="caption"
-                color="neutral.500"
+                color="gray.500"
                 fontWeight="500"
                 lineHeight="1"
               >
@@ -239,7 +239,7 @@ const AppLayout = ({ children }) => {
             aria-label="Notifications"
             borderRadius="lg"
             _hover={{
-              bg: useColorModeValue("neutral.100", "gray.700"),
+              bg: useColorModeValue("gray.100", "gray.700"),
             }}
           >
             <Badge
@@ -290,13 +290,13 @@ const AppLayout = ({ children }) => {
                 <ConsistentText
                   variant="supportText"
                   fontWeight="600"
-                  color="neutral.800"
+                  color="gray.800"
                 >
                   {user?.firstname && user?.lastname
                     ? `${user.firstname} ${user.lastname}`
                     : "User"}
                 </ConsistentText>
-                <ConsistentText variant="caption" color="neutral.500">
+                <ConsistentText variant="caption" color="gray.500">
                   {user?.email}
                 </ConsistentText>
               </Box>
@@ -309,7 +309,7 @@ const AppLayout = ({ children }) => {
                 mx={2}
                 my={1}
                 _hover={{
-                  bg: useColorModeValue("neutral.100", "gray.700"),
+                  bg: useColorModeValue("gray.100", "gray.700"),
                 }}
               >
                 Profile
@@ -322,7 +322,7 @@ const AppLayout = ({ children }) => {
                 mx={2}
                 my={1}
                 _hover={{
-                  bg: useColorModeValue("neutral.100", "gray.700"),
+                  bg: useColorModeValue("gray.100", "gray.700"),
                 }}
               >
                 Settings
@@ -356,7 +356,7 @@ const AppLayout = ({ children }) => {
         <ConsistentText
           variant="caption"
           fontWeight="600"
-          color="neutral.500"
+          color="gray.500"
           textTransform="uppercase"
           letterSpacing="wider"
           mb={3}
@@ -371,7 +371,7 @@ const AppLayout = ({ children }) => {
 
       {/* User Info Section */}
       <Box mt={8} pt={6} borderTop="1px solid" borderColor={borderColor}>
-        <HStack spacing={3} p={4} borderRadius="xl" bg="neutral.50">
+        <HStack spacing={3} p={4} borderRadius="xl" bg="gray.50">
           <Avatar
             size="sm"
             name={
@@ -392,7 +392,7 @@ const AppLayout = ({ children }) => {
                 ? `${user.firstname} ${user.lastname}`
                 : "User"}
             </ConsistentText>
-            <ConsistentText variant="caption" color="neutral.500" noOfLines={1}>
+            <ConsistentText variant="caption" color="gray.500" noOfLines={1}>
               {user?.email}
             </ConsistentText>
           </VStack>
@@ -410,7 +410,7 @@ const AppLayout = ({ children }) => {
           top={4}
           right={4}
           _hover={{
-            bg: useColorModeValue("neutral.100", "gray.700"),
+            bg: useColorModeValue("gray.100", "gray.700"),
           }}
         />
         <DrawerHeader borderBottomWidth="1px" borderColor={borderColor} pb={4}>

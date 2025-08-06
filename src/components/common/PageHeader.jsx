@@ -88,7 +88,7 @@ const PageHeader = ({
                 fontWeight="800"
                 lineHeight="1.2"
                 letterSpacing="-0.02em"
-                color="gray.800"
+                color="brand.500"
               >
                 {title}
               </Text>

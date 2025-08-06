@@ -16,7 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { FiTarget, FiFileText, FiFolder, FiArrowRight } from "react-icons/fi";
-import logoImage from "../assets/icons/custom/logo.png";
+import logoImage from "../assets/icons/custom/logo.svg";
 
 const LandingPage = () => {
   const navigate = useNavigate();

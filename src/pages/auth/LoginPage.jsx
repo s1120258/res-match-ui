@@ -24,7 +24,7 @@ import {
 } from "@chakra-ui/react";
 import { FiUser, FiLock, FiArrowRight } from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
-import logoImage from "../../assets/icons/custom/logo.png";
+import logoImage from "../../assets/icons/custom/logo.svg";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({

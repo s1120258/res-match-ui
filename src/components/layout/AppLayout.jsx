@@ -42,7 +42,7 @@ import {
 } from "react-icons/fi";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import logoImage from "../../assets/icons/custom/logo.png";
+import logoImage from "../../assets/icons/custom/logo.svg";
 
 const AppLayout = ({ children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();

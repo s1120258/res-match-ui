@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Container,
@@ -38,6 +38,7 @@ import {
   ButtonGroup,
   IconButton,
   Tooltip,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import {
   FiMapPin,
@@ -80,6 +81,35 @@ const JobDetailPage = () => {
   const [error, setError] = useState(null);
   const [summaryError, setSummaryError] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
+
+  // Responsive layout values for performance
+  const layoutValues = useMemo(
+    () => ({
+      containerMaxW: "7xl",
+      containerPy: { base: 3, md: 8 },
+      containerPx: { base: 2, md: 6 },
+      vStackSpacing: { base: 4, md: 6 },
+      cardHeaderDirection: { base: "column", lg: "row" },
+      cardHeaderAlign: { base: "stretch", lg: "start" },
+      cardHeaderSpacing: { base: 3, lg: 4 },
+      titleFontSize: { base: "xl", md: "2xl", lg: "3xl" },
+      companyFontSize: { base: "md", md: "lg", lg: "xl" },
+      buttonSize: { base: "sm", md: "md", lg: "lg" },
+      actionButtonDirection: { base: "column", sm: "row" },
+      actionButtonSpacing: { base: 2, sm: 3 },
+      actionButtonMinW: { base: "full", sm: "120px", lg: "200px" },
+    }),
+    []
+  );
+
+  // Only essential useBreakpointValue calls
+  const cardHeaderDirection = useBreakpointValue(
+    layoutValues.cardHeaderDirection
+  );
+  const cardHeaderAlign = useBreakpointValue(layoutValues.cardHeaderAlign);
+  const actionButtonDirection = useBreakpointValue(
+    layoutValues.actionButtonDirection
+  );
 
   // Load job details on component mount
   useEffect(() => {
@@ -278,7 +308,11 @@ const JobDetailPage = () => {
 
   if (loading) {
     return (
-      <Container maxW="7xl" py={8}>
+      <Container
+        maxW={layoutValues.containerMaxW}
+        py={layoutValues.containerPy}
+        px={layoutValues.containerPx}
+      >
         <Flex justify="center" align="center" minH="50vh">
           <Spinner size="xl" color="brand.500" />
         </Flex>
@@ -288,7 +322,11 @@ const JobDetailPage = () => {
 
   if (error || !job) {
     return (
-      <Container maxW="7xl" py={8}>
+      <Container
+        maxW={layoutValues.containerMaxW}
+        py={layoutValues.containerPy}
+        px={layoutValues.containerPx}
+      >
         <Alert status="error">
           <AlertIcon />
           {error || "Job not found"}
@@ -298,92 +336,157 @@ const JobDetailPage = () => {
   }
 
   return (
-    <Container maxW="7xl" py={8}>
-      <VStack spacing={6} align="stretch">
+    <Container
+      maxW={layoutValues.containerMaxW}
+      py={layoutValues.containerPy}
+      px={layoutValues.containerPx}
+    >
+      <VStack spacing={layoutValues.vStackSpacing} align="stretch">
         {/* Breadcrumb Navigation */}
-        <Breadcrumb>
+        <Breadcrumb fontSize={{ base: "sm", md: "md" }}>
           <BreadcrumbItem>
             <BreadcrumbLink onClick={() => navigate("/jobs")}>
               Jobs
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem isCurrentPage>
-            <BreadcrumbLink>{job.title}</BreadcrumbLink>
+            <BreadcrumbLink isTruncated maxW={{ base: "150px", md: "300px" }}>
+              {job.title}
+            </BreadcrumbLink>
           </BreadcrumbItem>
         </Breadcrumb>
 
         {/* Job Header */}
         <Card>
           <CardHeader>
-            <Flex justify="space-between" align="start" wrap="wrap" gap={4}>
-              <VStack align="start" spacing={3} flex={1}>
-                <HStack spacing={3} wrap="wrap">
+            <Flex
+              direction={cardHeaderDirection}
+              align={cardHeaderAlign}
+              gap={layoutValues.cardHeaderSpacing}
+            >
+              <VStack
+                align="start"
+                spacing={{ base: 2, md: 3 }}
+                flex={1}
+                minW={0}
+              >
+                <HStack spacing={{ base: 2, md: 3 }} wrap="wrap">
                   <Button
                     leftIcon={<Icon as={FiArrowLeft} />}
                     variant="ghost"
-                    size="sm"
+                    size={{ base: "xs", md: "sm" }}
                     onClick={() => navigate("/jobs")}
                   >
-                    Back to Jobs
+                    <Text display={{ base: "none", sm: "inline" }}>
+                      Back to Jobs
+                    </Text>
+                    <Text display={{ base: "inline", sm: "none" }}>Back</Text>
                   </Button>
                   {job.status && (
-                    <Badge colorScheme={getStatusColor(job.status)} size="lg">
+                    <Badge
+                      colorScheme={getStatusColor(job.status)}
+                      size={{ base: "sm", md: "lg" }}
+                    >
                       {job.status}
                     </Badge>
                   )}
                 </HStack>
 
-                <Text fontSize="3xl" fontWeight="bold" lineHeight="short">
+                <Text
+                  fontSize={layoutValues.titleFontSize}
+                  fontWeight="bold"
+                  lineHeight="short"
+                  isTruncated
+                >
                   {job.title}
                 </Text>
 
-                <HStack spacing={4} wrap="wrap">
-                  <Text color="brand.500" fontSize="xl" fontWeight="semibold">
+                <VStack align="start" spacing={{ base: 1, md: 2 }} w="full">
+                  <Text
+                    color="brand.500"
+                    fontSize={layoutValues.companyFontSize}
+                    fontWeight="semibold"
+                    isTruncated
+                  >
                     {job.company}
                   </Text>
+
                   {job.location && (
-                    <>
-                      <Text color="gray.400">•</Text>
-                      <HStack spacing={1}>
-                        <Icon as={FiMapPin} color="gray.500" />
-                        <Text color="gray.600" fontSize="lg">
-                          {job.location}
-                        </Text>
-                      </HStack>
-                    </>
+                    <HStack spacing={1}>
+                      <Icon
+                        as={FiMapPin}
+                        color="gray.500"
+                        w={{ base: 3, md: 4 }}
+                        h={{ base: 3, md: 4 }}
+                      />
+                      <Text
+                        color="gray.600"
+                        fontSize={{ base: "sm", md: "md", lg: "lg" }}
+                        isTruncated
+                      >
+                        {job.location}
+                      </Text>
+                    </HStack>
                   )}
-                </HStack>
+                </VStack>
 
                 {/* Quick Info */}
-                <HStack spacing={6} wrap="wrap" color="gray.600">
+                <VStack
+                  align="start"
+                  spacing={{ base: 1, md: 2 }}
+                  color="gray.600"
+                  w="full"
+                >
                   {job.date_posted && (
                     <HStack spacing={2}>
-                      <Icon as={FiClock} />
-                      <Text fontSize="sm">
+                      <Icon
+                        as={FiClock}
+                        w={{ base: 3, md: 4 }}
+                        h={{ base: 3, md: 4 }}
+                      />
+                      <Text fontSize={{ base: "xs", md: "sm" }}>
                         Posted: {new Date(job.date_posted).toLocaleDateString()}
                       </Text>
                     </HStack>
                   )}
                   {job.source && (
                     <HStack spacing={2}>
-                      <Icon as={FiBriefcase} />
-                      <Text fontSize="sm">Source: {job.source}</Text>
+                      <Icon
+                        as={FiBriefcase}
+                        w={{ base: 3, md: 4 }}
+                        h={{ base: 3, md: 4 }}
+                      />
+                      <Text fontSize={{ base: "xs", md: "sm" }}>
+                        Source: {job.source}
+                      </Text>
                     </HStack>
                   )}
                   {matchScore && (
                     <HStack spacing={2}>
-                      <Icon as={FiStar} color="yellow.400" />
-                      <Text fontSize="sm" fontWeight="medium">
+                      <Icon
+                        as={FiStar}
+                        color="yellow.400"
+                        w={{ base: 3, md: 4 }}
+                        h={{ base: 3, md: 4 }}
+                      />
+                      <Text
+                        fontSize={{ base: "xs", md: "sm" }}
+                        fontWeight="medium"
+                      >
                         {Math.round(matchScore.similarity_score * 100)}% Match
                       </Text>
                     </HStack>
                   )}
-                </HStack>
+                </VStack>
               </VStack>
 
               {/* Action Buttons */}
-              <VStack spacing={3} align="stretch" minW="200px">
-                <ButtonGroup size="lg" isAttached>
+              <VStack
+                spacing={layoutValues.actionButtonSpacing}
+                align="stretch"
+                minW={layoutValues.actionButtonMinW}
+              >
+                <VStack spacing={2} direction={actionButtonDirection} w="full">
                   {job.status !== JOB_STATUS.SAVED && (
                     <Button
                       leftIcon={<Icon as={FiBookmark} />}
@@ -392,9 +495,13 @@ const JobDetailPage = () => {
                       loadingText="Saving..."
                       colorScheme="brand"
                       variant="outline"
-                      flex={1}
+                      size={layoutValues.buttonSize}
+                      w="full"
                     >
-                      Save Job
+                      <Text display={{ base: "none", sm: "inline" }}>
+                        Save Job
+                      </Text>
+                      <Text display={{ base: "inline", sm: "none" }}>Save</Text>
                     </Button>
                   )}
 
@@ -405,20 +512,27 @@ const JobDetailPage = () => {
                       isLoading={applying}
                       loadingText="Applying..."
                       colorScheme="brand"
-                      flex={1}
+                      size={layoutValues.buttonSize}
+                      w="full"
                     >
-                      Apply Now
+                      <Text display={{ base: "none", sm: "inline" }}>
+                        Apply Now
+                      </Text>
+                      <Text display={{ base: "inline", sm: "none" }}>
+                        Apply
+                      </Text>
                     </Button>
                   )}
-                </ButtonGroup>
+                </VStack>
 
-                <HStack spacing={2}>
+                <HStack spacing={2} justify="center">
                   {job.url && (
                     <Tooltip label="View original job posting">
                       <IconButton
                         icon={<Icon as={FiExternalLink} />}
                         onClick={() => window.open(job.url, "_blank")}
                         variant="outline"
+                        size={{ base: "sm", md: "md" }}
                         aria-label="View original"
                       />
                     </Tooltip>
@@ -428,6 +542,7 @@ const JobDetailPage = () => {
                       icon={<Icon as={FiShare2} />}
                       onClick={handleShare}
                       variant="outline"
+                      size={{ base: "sm", md: "md" }}
                       aria-label="Share job"
                     />
                   </Tooltip>
@@ -439,70 +554,150 @@ const JobDetailPage = () => {
 
         {/* Content Tabs */}
         <Card>
-          <CardBody>
+          <CardBody px={{ base: 2, md: 6 }}>
             <Tabs index={activeTab} onChange={setActiveTab} variant="enclosed">
-              <TabList overflowX="auto" overflowY="hidden" flexWrap="nowrap">
-                <Tab flexShrink={0} fontSize={{ base: "sm", md: "md" }}>
-                  <Icon as={FiBriefcase} mr={2} />
-                  <Text display={{ base: "none", sm: "inline" }}>
-                    Job Details
-                  </Text>
-                  <Text display={{ base: "inline", sm: "none" }}>Details</Text>
+              <TabList
+                overflowX="auto"
+                overflowY="hidden"
+                flexWrap="nowrap"
+                sx={{
+                  "&::-webkit-scrollbar": {
+                    display: "none",
+                  },
+                  scrollbarWidth: "none",
+                  "& > *": {
+                    flexShrink: 0,
+                  },
+                }}
+              >
+                <Tab
+                  flexShrink={0}
+                  fontSize={{ base: "xs", md: "sm" }}
+                  px={{ base: 3, md: 4 }}
+                  py={{ base: 2, md: 3 }}
+                >
+                  <VStack spacing={0}>
+                    <Icon
+                      as={FiBriefcase}
+                      w={{ base: 4, md: 4 }}
+                      h={{ base: 4, md: 4 }}
+                    />
+                    <Text
+                      display={{ base: "none", md: "inline" }}
+                      fontSize="xs"
+                    >
+                      Details
+                    </Text>
+                  </VStack>
                 </Tab>
                 {jobSkills && (
-                  <Tab flexShrink={0} fontSize={{ base: "sm", md: "md" }}>
-                    <Icon as={FiTarget} mr={2} />
-                    <Text display={{ base: "none", sm: "inline" }}>
-                      Required Skills
-                    </Text>
-                    <Text display={{ base: "inline", sm: "none" }}>Skills</Text>
+                  <Tab
+                    flexShrink={0}
+                    fontSize={{ base: "xs", md: "sm" }}
+                    px={{ base: 3, md: 4 }}
+                    py={{ base: 2, md: 3 }}
+                  >
+                    <VStack spacing={0}>
+                      <Icon
+                        as={FiTarget}
+                        w={{ base: 4, md: 4 }}
+                        h={{ base: 4, md: 4 }}
+                      />
+                      <Text
+                        display={{ base: "none", md: "inline" }}
+                        fontSize="xs"
+                      >
+                        Skills
+                      </Text>
+                    </VStack>
                   </Tab>
                 )}
                 {matchScore && (
-                  <Tab flexShrink={0} fontSize={{ base: "sm", md: "md" }}>
-                    <Icon as={FiStar} mr={2} />
-                    <Text display={{ base: "none", sm: "inline" }}>
-                      Match Analysis
-                    </Text>
-                    <Text display={{ base: "inline", sm: "none" }}>Match</Text>
+                  <Tab
+                    flexShrink={0}
+                    fontSize={{ base: "xs", md: "sm" }}
+                    px={{ base: 3, md: 4 }}
+                    py={{ base: 2, md: 3 }}
+                  >
+                    <VStack spacing={0}>
+                      <Icon
+                        as={FiStar}
+                        w={{ base: 4, md: 4 }}
+                        h={{ base: 4, md: 4 }}
+                      />
+                      <Text
+                        display={{ base: "none", md: "inline" }}
+                        fontSize="xs"
+                      >
+                        Match
+                      </Text>
+                    </VStack>
                   </Tab>
                 )}
                 {resumeExists && (
-                  <Tab flexShrink={0} fontSize={{ base: "sm", md: "md" }}>
-                    <Icon as={FiMessageSquare} mr={2} />
-                    <Text display={{ base: "none", sm: "inline" }}>
-                      Resume Feedback
-                    </Text>
-                    <Text display={{ base: "inline", sm: "none" }}>
-                      Feedback
-                    </Text>
+                  <Tab
+                    flexShrink={0}
+                    fontSize={{ base: "xs", md: "sm" }}
+                    px={{ base: 3, md: 4 }}
+                    py={{ base: 2, md: 3 }}
+                  >
+                    <VStack spacing={0}>
+                      <Icon
+                        as={FiMessageSquare}
+                        w={{ base: 4, md: 4 }}
+                        h={{ base: 4, md: 4 }}
+                      />
+                      <Text
+                        display={{ base: "none", md: "inline" }}
+                        fontSize="xs"
+                      >
+                        Feedback
+                      </Text>
+                    </VStack>
                   </Tab>
                 )}
                 {skillGapAnalysis && (
-                  <Tab flexShrink={0} fontSize={{ base: "sm", md: "md" }}>
-                    <Icon as={FiTrendingUp} mr={2} />
-                    <Text display={{ base: "none", sm: "inline" }}>
-                      Skill Gap Analysis
-                    </Text>
-                    <Text display={{ base: "inline", sm: "none" }}>Gap</Text>
+                  <Tab
+                    flexShrink={0}
+                    fontSize={{ base: "xs", md: "sm" }}
+                    px={{ base: 3, md: 4 }}
+                    py={{ base: 2, md: 3 }}
+                  >
+                    <VStack spacing={0}>
+                      <Icon
+                        as={FiTrendingUp}
+                        w={{ base: 4, md: 4 }}
+                        h={{ base: 4, md: 4 }}
+                      />
+                      <Text
+                        display={{ base: "none", md: "inline" }}
+                        fontSize="xs"
+                      >
+                        Gap
+                      </Text>
+                    </VStack>
                   </Tab>
                 )}
               </TabList>
 
               <TabPanels>
                 {/* Job Details Tab */}
-                <TabPanel px={0}>
-                  <VStack spacing={6} align="stretch">
+                <TabPanel px={0} py={{ base: 3, md: 6 }}>
+                  <VStack spacing={{ base: 4, md: 6 }} align="stretch">
                     {/* AI Summary Section */}
                     <Box>
-                      <Text fontSize="xl" fontWeight="semibold" mb={4}>
+                      <Text
+                        fontSize={{ base: "md", md: "lg", lg: "xl" }}
+                        fontWeight="semibold"
+                        mb={{ base: 2, md: 4 }}
+                      >
                         <Icon as={FiStar} mr={2} color="brand.500" />
                         AI Summary
                       </Text>
 
                       {summaryLoading && (
                         <Box
-                          p={6}
+                          p={{ base: 4, md: 6 }}
                           bg="gray.50"
                           borderRadius="lg"
                           border="1px"
@@ -510,7 +705,10 @@ const JobDetailPage = () => {
                         >
                           <HStack spacing={3}>
                             <Spinner size="md" color="brand.500" />
-                            <Text color="gray.600">
+                            <Text
+                              color="gray.600"
+                              fontSize={{ base: "sm", md: "md" }}
+                            >
                               Generating job summary...
                             </Text>
                           </HStack>
@@ -519,7 +717,7 @@ const JobDetailPage = () => {
 
                       {summaryError && (
                         <Box
-                          p={6}
+                          p={{ base: 4, md: 6 }}
                           bg="red.50"
                           borderRadius="lg"
                           border="1px"
@@ -528,15 +726,21 @@ const JobDetailPage = () => {
                           <VStack spacing={4} align="start">
                             <HStack spacing={2}>
                               <Icon as={FiX} color="red.500" />
-                              <Text color="red.700">
+                              <Text
+                                color="red.700"
+                                fontSize={{ base: "sm", md: "md" }}
+                              >
                                 Failed to generate summary
                               </Text>
                             </HStack>
-                            <Text color="red.600" fontSize="sm">
+                            <Text
+                              color="red.600"
+                              fontSize={{ base: "xs", md: "sm" }}
+                            >
                               {summaryError}
                             </Text>
                             <Button
-                              size="sm"
+                              size={{ base: "xs", md: "sm" }}
                               colorScheme="red"
                               variant="outline"
                               onClick={() => loadJobSummary(id)}
@@ -550,7 +754,7 @@ const JobDetailPage = () => {
 
                       {jobSummary && !summaryLoading && !summaryError && (
                         <Box
-                          p={6}
+                          p={{ base: 4, md: 6 }}
                           bg="blue.50"
                           borderRadius="lg"
                           border="1px"
@@ -560,16 +764,16 @@ const JobDetailPage = () => {
                             <Text
                               color="blue.800"
                               lineHeight="tall"
-                              fontSize="lg"
+                              fontSize={{ base: "sm", md: "md", lg: "lg" }}
                             >
                               {jobSummary.summary || "No summary text found"}
                             </Text>
 
                             {jobSummary.key_points &&
                               jobSummary.key_points.length > 0 && (
-                                <Box>
+                                <Box w="full">
                                   <Text
-                                    fontSize="md"
+                                    fontSize={{ base: "sm", md: "md" }}
                                     fontWeight="semibold"
                                     color="blue.700"
                                     mb={3}
@@ -591,8 +795,12 @@ const JobDetailPage = () => {
                                             as={FiCheck}
                                             color="blue.500"
                                             mt={1}
+                                            flexShrink={0}
                                           />
-                                          <Text fontSize="sm" color="blue.700">
+                                          <Text
+                                            fontSize={{ base: "xs", md: "sm" }}
+                                            color="blue.700"
+                                          >
                                             {point}
                                           </Text>
                                         </HStack>
@@ -602,7 +810,12 @@ const JobDetailPage = () => {
                                 </Box>
                               )}
 
-                            <HStack spacing={6} fontSize="xs" color="gray.500">
+                            <HStack
+                              spacing={6}
+                              fontSize="xs"
+                              color="gray.500"
+                              flexWrap="wrap"
+                            >
                               {jobSummary.summary_length && (
                                 <Text>
                                   Summary: {jobSummary.summary_length} words
@@ -631,7 +844,7 @@ const JobDetailPage = () => {
 
                 {/* Required Skills Tab */}
                 {jobSkills && (
-                  <TabPanel px={0}>
+                  <TabPanel px={0} py={{ base: 3, md: 6 }}>
                     <VStack spacing={6} align="stretch">
                       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
                         {/* Required Skills */}
@@ -786,7 +999,7 @@ const JobDetailPage = () => {
 
                 {/* Match Analysis Tab */}
                 {matchScore && (
-                  <TabPanel px={0}>
+                  <TabPanel px={0} py={{ base: 3, md: 6 }}>
                     <VStack spacing={6} align="stretch">
                       <Card variant="outline">
                         <CardBody>
@@ -815,14 +1028,14 @@ const JobDetailPage = () => {
 
                 {/* Resume Feedback Tab */}
                 {resumeExists && (
-                  <TabPanel px={0}>
+                  <TabPanel px={0} py={{ base: 3, md: 6 }}>
                     <ResumeFeedback resumeExists={resumeExists} jobId={id} />
                   </TabPanel>
                 )}
 
                 {/* Skill Gap Analysis Tab */}
                 {skillGapAnalysis && (
-                  <TabPanel px={0}>
+                  <TabPanel px={0} py={{ base: 3, md: 6 }}>
                     <VStack spacing={6} align="stretch">
                       {/* Overall Match */}
                       <Card variant="outline">

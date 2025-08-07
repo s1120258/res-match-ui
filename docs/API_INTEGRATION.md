@@ -1,4 +1,6 @@
-# ResMatch - API Integration Guide
+# API Integration Guide
+
+Complete API documentation and integration examples for ResMatch Frontend.
 
 ## 🔗 API Basic Information
 

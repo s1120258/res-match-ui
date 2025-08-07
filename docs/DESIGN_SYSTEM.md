@@ -50,7 +50,7 @@ $blue-500: #4299e1;
 
 ### Usage Examples
 
-- **Primary (#3972e6)**: Main buttons, active states, highlights, brand actions
+- **Primary (#3972e6)**: Page titles, navigation titles, active states, highlights, brand actions
 - **Secondary (#4A5568)**: Text, borders, backgrounds, neutral emphasis
 - **Accent (#38A169)**: Match success, save complete, positive scores, success states
 - **Warning (#DD6B20)**: Skill gaps, improvement suggestions, alerts
@@ -68,16 +68,60 @@ font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", s
 font-family: "JetBrains Mono", "SF Mono", Monaco, "Cascadia Code", monospace;
 ```
 
+### Semantic Text Variants
+
+We use semantic text variants for consistent typography across the application:
+
+```jsx
+// Page titles - responsive sizing
+<ConsistentText variant="pageTitle" color="brand.500">
+  Page Title
+</ConsistentText>
+
+// Section titles
+<ConsistentText variant="sectionTitle">
+  Section Heading
+</ConsistentText>
+
+// Card titles
+<ConsistentText variant="cardTitle">
+  Card Header
+</ConsistentText>
+
+// Body text
+<ConsistentText variant="bodyText">
+  Main content text
+</ConsistentText>
+
+// Supporting text
+<ConsistentText variant="supportText">
+  Subtitle or description
+</ConsistentText>
+
+// Captions
+<ConsistentText variant="caption">
+  Small details or metadata
+</ConsistentText>
+```
+
 ### Font Size Hierarchy
 
 ```scss
-// Headings
+// Responsive Headings
+$pageTitle: ["lg", "xl", "2xl"] // 18px → 20px → 24px
+$sectionTitle: ["lg", "xl", "2xl"] // 18px → 20px → 24px
+$cardTitle: ["md", "lg"] // 16px → 18px
+
+// Body Text
+$bodyText: ["sm", "md"] // 14px → 16px
+$supportText: ["xs", "sm"] // 12px → 14px
+$caption: ["xs"] // 12px
+
+// Legacy sizes (for reference)
 $text-6xl: 3.75rem; // 60px - Main titles
 $text-4xl: 2.25rem; // 36px - Section titles
 $text-2xl: 1.5rem; // 24px - Subsections
 $text-xl: 1.25rem; // 20px - Card titles
-
-// Body Text
 $text-lg: 1.125rem; // 18px - Important text
 $text-base: 1rem; // 16px - Standard text
 $text-sm: 0.875rem; // 14px - Supporting text
@@ -106,6 +150,23 @@ $space-12: 3rem; // 48px
 
 ### Layout Patterns
 
+#### Page Header Pattern
+
+All pages should use the standardized PageHeader component:
+
+```jsx
+<PageHeader
+  title="Page Title"
+  subtitle="Optional description"
+  icon={IconComponent}
+  breadcrumbs={[
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Current Page", href: "/current" },
+  ]}
+  action={<Button>Action</Button>}
+/>
+```
+
 #### Dashboard Grid
 
 ```
@@ -120,21 +181,75 @@ $space-12: 3rem; // 48px
 │             │ ┌─────────────────────────┐ │
 │             │ │ Activity Feed           │ │
 │             │ └─────────────────────────┘ │
+│             │                           │
 └─────────────────────────────────────────┘
 ```
 
-## 🧩 Component Definitions
+## 🧩 Component System
+
+### Core Components
+
+#### PageHeader
+
+Standardized page header with consistent styling:
+
+```jsx
+import PageHeader from "../components/common/PageHeader";
+
+<PageHeader
+  title="Analytics Dashboard"
+  subtitle="Track your job search progress"
+  icon={FiBarChart2}
+  breadcrumbs={[
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Analytics", href: "/analytics" },
+  ]}
+  action={
+    <Button colorScheme="brand" variant="outline">
+      Refresh Data
+    </Button>
+  }
+/>;
+```
+
+#### ConsistentIcon
+
+Use for all icons to ensure consistent sizing:
+
+```jsx
+import ConsistentIcon from '../components/common/ConsistentIcon';
+
+// Semantic sizing
+<ConsistentIcon as={FiSearch} size="md" context="action" />
+<ConsistentIcon as={FiUser} size="sm" context="navigation" />
+<ConsistentIcon as={FiCheck} size="xs" context="success" />
+```
+
+#### ConsistentText
+
+Use for all text to ensure consistent typography:
+
+```jsx
+import ConsistentText from '../components/common/ConsistentText';
+
+<ConsistentText variant="pageTitle" color="brand.500">
+  Page Title
+</ConsistentText>
+<ConsistentText variant="bodyText">
+  Content text
+</ConsistentText>
+```
 
 ### Buttons
 
 ```jsx
 // Primary Button
-<Button colorScheme="blue" size="md">
+<Button colorScheme="brand" size="md">
   Main Action
 </Button>
 
 // Secondary Button
-<Button variant="outline" colorScheme="blue">
+<Button variant="outline" colorScheme="brand">
   Secondary Action
 </Button>
 
@@ -150,7 +265,7 @@ $space-12: 3rem; // 48px
 // Standard Card
 <Card p={6} shadow="md" borderRadius="lg">
   <CardHeader>
-    <Heading size="md">Title</Heading>
+    <ConsistentText variant="cardTitle">Title</ConsistentText>
   </CardHeader>
   <CardBody>
     Content
@@ -158,7 +273,7 @@ $space-12: 3rem; // 48px
 </Card>
 
 // KPI Card
-<Card bg="blue.50" borderLeft="4px solid" borderColor="blue.500">
+<Card bg="brand.50" borderLeft="4px solid" borderColor="brand.500">
   <Stat>
     <StatNumber fontSize="2xl">128</StatNumber>
     <StatLabel>Saved Jobs</StatLabel>
@@ -174,7 +289,7 @@ $space-12: 3rem; // 48px
   <FormLabel>Label</FormLabel>
   <Input
     placeholder="Enter text here"
-    focusBorderColor="blue.500"
+    focusBorderColor="brand.500"
   />
   <FormHelperText>Help text</FormHelperText>
 </FormControl>
@@ -191,7 +306,7 @@ $space-12: 3rem; // 48px
 
 ```jsx
 // Circular Progress
-<CircularProgress value={85} color="blue.500" size="120px">
+<CircularProgress value={85} color="brand.500" size="120px">
   <CircularProgressLabel>85%</CircularProgressLabel>
 </CircularProgress>
 
@@ -259,7 +374,7 @@ const statusConfig = {
   thickness="4px"
   speed="0.65s"
   emptyColor="gray.200"
-  color="blue.500"
+  color="brand.500"
   size="xl"
 />
 ```
@@ -278,7 +393,7 @@ $breakpoints: (
   // 992px
   xl: "80em",
   // 1280px
-  "2xl": "96em" // 1536px,
+  "2xl": "96em" // 1536px,,
 );
 ```
 
@@ -297,6 +412,11 @@ $breakpoints: (
   direction={{ base: 'column', md: 'row' }}
   spacing={{ base: 4, md: 8 }}
 >
+
+// Responsive text
+<ConsistentText variant="pageTitle">
+  Automatically responsive title
+</ConsistentText>
 ```
 
 ## 🎯 Accessibility
@@ -331,25 +451,83 @@ $breakpoints: (
 
 ## 📏 Icon System
 
-### Icon Libraries
+### Design Tokens
 
-- **React Icons**: Rich icon set
-- **Chakra UI Icons**: Basic icons
+We use standardized icon sizes based on design tokens:
+
+```jsx
+// Icon Size Scale
+const iconSizes = {
+  xs: 12, // 12px - Small decorative icons, badges
+  sm: 16, // 16px - List item icons, small buttons
+  md: 20, // 20px - Navigation icons, card headers
+  lg: 24, // 24px - Primary action icons, stat cards
+  xl: 32, // 32px - Feature highlights, page headers
+  "2xl": 48, // 48px - Empty states, large illustrations
+};
+```
 
 ### Usage Guidelines
 
 ```jsx
-// Consistent sizing
-const iconSizes = {
-  sm: '16px',
-  md: '20px',
-  lg: '24px',
-  xl: '32px'
-};
+// Always use ConsistentIcon for proper sizing
+<ConsistentIcon as={FiSearch} size="md" context="action" />
+<ConsistentIcon as={FiBookmark} size="sm" context="navigation" />
+<ConsistentIcon as={FiUser} size="lg" context="status" />
+<ConsistentIcon as={FiTrendingUp} size="xl" context="success" />
 
-// Semantic usage
-<Icon as={FiSearch} />      // Search
-<Icon as={FiBookmark} />    // Save
-<Icon as={FiUser} />        // User
-<Icon as={FiTrendingUp} />  // Analytics & growth
+// Context-based coloring
+// action: brand.500 (blue)
+// navigation: gray.600
+// status: gray.500
+// success: green.500
+// warning: orange.500
+// error: red.500
 ```
+
+### Semantic Icon Usage
+
+- **FiSearch**: Search functionality
+- **FiBookmark**: Save/bookmark actions
+- **FiUser**: User profile/account
+- **FiTrendingUp**: Analytics, growth, positive trends
+- **FiFileText**: Documents, resumes, files
+- **FiBarChart2**: Analytics, dashboards
+- **FiHome**: Dashboard, home navigation
+
+## 🚀 Implementation Guidelines
+
+### Best Practices
+
+1. **Always use semantic components**: Prefer `ConsistentText` and `ConsistentIcon` over direct Chakra components
+2. **Use design tokens**: Reference theme tokens rather than hardcoded values
+3. **Maintain color hierarchy**: Primary color (brand.500) for titles and important elements
+4. **Follow responsive patterns**: Use built-in responsive sizing from design tokens
+5. **Consistent page structure**: Always use `PageHeader` for page layouts
+
+### Migration Guide
+
+When updating existing components:
+
+```jsx
+// ❌ Before - Hardcoded styling
+<Text fontSize="2xl" fontWeight="bold" color="gray.800">
+  Page Title
+</Text>
+<Icon as={FiSearch} boxSize={5} color="blue.500" />
+
+// ✅ After - Semantic components
+<ConsistentText variant="pageTitle" color="brand.500">
+  Page Title
+</ConsistentText>
+<ConsistentIcon as={FiSearch} size="md" context="action" />
+```
+
+### Quality Checklist
+
+- [ ] All page titles use `brand.500` color
+- [ ] All icons use `ConsistentIcon` with appropriate size tokens
+- [ ] All text uses `ConsistentText` with semantic variants
+- [ ] Pages use standardized `PageHeader` component
+- [ ] No hardcoded font sizes or icon sizes
+- [ ] Responsive behavior is consistent across components

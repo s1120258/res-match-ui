@@ -327,9 +327,10 @@ const RegisterPage = () => {
                   </Text>
                 </Box>
 
-                {/* Google Sign In Button */}
+                {/* Google Sign Up Button */}
                 <GoogleSignInButton
                   text="Sign up with Google"
+                  mode="register"
                   isLoading={isLoading}
                 />
 

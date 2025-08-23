@@ -60,7 +60,7 @@ export const authAPI = {
     }
   },
 
-  // Google OAuth authentication
+  // Google OAuth authentication (login)
   googleAuth: async (idToken) => {
     try {
       const response = await apiClient.post("/api/v1/auth/google/verify", {
@@ -68,8 +68,36 @@ export const authAPI = {
       });
       return response.data;
     } catch (error) {
+      // Handle 422 validation errors with detailed information
+      if (error.response?.status === 422 && error.response?.data?.detail) {
+        const details = Array.isArray(error.response.data.detail)
+          ? error.response.data.detail.map((d) => d.msg).join(", ")
+          : error.response.data.detail;
+        throw new Error(`Validation error: ${details}`);
+      }
       throw new Error(
         error.response?.data?.detail || "Google authentication failed"
+      );
+    }
+  },
+
+  // Google OAuth registration
+  googleRegister: async (idToken) => {
+    try {
+      const response = await apiClient.post("/api/v1/auth/google/register", {
+        id_token: idToken,
+      });
+      return response.data;
+    } catch (error) {
+      // Handle 422 validation errors with detailed information
+      if (error.response?.status === 422 && error.response?.data?.detail) {
+        const details = Array.isArray(error.response.data.detail)
+          ? error.response.data.detail.map((d) => d.msg).join(", ")
+          : error.response.data.detail;
+        throw new Error(`Validation error: ${details}`);
+      }
+      throw new Error(
+        error.response?.data?.detail || "Google registration failed"
       );
     }
   },

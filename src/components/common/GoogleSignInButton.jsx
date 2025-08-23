@@ -5,8 +5,9 @@ import { useAuth } from "../../contexts/AuthContext";
 const GoogleSignInButton = ({
   text = "Sign in with Google",
   isLoading = false,
+  mode = "login", // "login" or "register"
 }) => {
-  const { googleLogin } = useAuth();
+  const { googleLogin, googleRegister } = useAuth();
   const toast = useToast();
   const googleButtonRef = useRef(null);
   const isInitialized = useRef(false);
@@ -16,9 +17,20 @@ const GoogleSignInButton = ({
   const handleCredentialResponse = useCallback(
     async (response) => {
       try {
-        const result = await googleLogin(response.credential);
+        console.log("Google credential response received:", response);
+
+        if (!response.credential) {
+          throw new Error("No credential received from Google");
+        }
+
+        console.log(`Sending credential to backend for ${mode}...`);
+        const result =
+          mode === "register"
+            ? await googleRegister(response.credential)
+            : await googleLogin(response.credential);
 
         if (result.success) {
+          console.log("Google authentication successful");
           toast({
             title: "Google authentication successful",
             description: "Welcome to ResMatch!",
@@ -27,6 +39,7 @@ const GoogleSignInButton = ({
             isClosable: true,
           });
         } else {
+          console.error("Authentication failed:", result.error);
           toast({
             title: "Authentication failed",
             description: result.error || "Google authentication failed",
@@ -36,6 +49,7 @@ const GoogleSignInButton = ({
           });
         }
       } catch (error) {
+        console.error("Authentication error:", error);
         toast({
           title: "Authentication error",
           description: error.message || "An unexpected error occurred",
@@ -45,7 +59,7 @@ const GoogleSignInButton = ({
         });
       }
     },
-    [googleLogin, toast]
+    [googleLogin, googleRegister, toast, mode]
   );
 
   useEffect(() => {
@@ -66,23 +80,37 @@ const GoogleSignInButton = ({
             GOOGLE_CLIENT_ID
           );
 
-          // Initialize Google Identity Services
+          // Initialize Google Identity Services with improved settings
           window.google.accounts.id.initialize({
             client_id: GOOGLE_CLIENT_ID,
             callback: handleCredentialResponse,
+            auto_select: false,
+            cancel_on_tap_outside: true,
+            // Disable FedCM to avoid Cross-Origin-Opener-Policy issues
+            use_fedcm_for_prompt: false,
+            // Add context for better reliability
+            context: "signin",
+            ux_mode: "popup",
+            // Allow iframe for better compatibility
+            itp_support: true,
           });
 
-          // Render Google's native button directly
+          // Render Google's native button with improved configuration
           window.google.accounts.id.renderButton(googleButtonRef.current, {
             theme: "outline",
             size: "large",
             width: "100%",
             text: "signin_with",
             shape: "rectangular",
+            logo_alignment: "left",
+            // Improve accessibility
+            locale: "en",
           });
 
           isInitialized.current = true;
-          console.log("Google button rendered successfully");
+          console.log(
+            "Google button rendered successfully with improved settings"
+          );
         } catch (error) {
           console.error("Failed to initialize Google button:", error);
         }
@@ -92,12 +120,18 @@ const GoogleSignInButton = ({
       }
     };
 
-    // Wait for Google SDK to load
+    // Wait for Google SDK to load with timeout
+    let retryCount = 0;
+    const maxRetries = 50; // 5 seconds max wait
+
     const checkGoogleSDK = () => {
       if (window.google && window.google.accounts) {
         initializeGoogleButton();
-      } else {
+      } else if (retryCount < maxRetries) {
+        retryCount++;
         setTimeout(checkGoogleSDK, 100);
+      } else {
+        console.warn("Google SDK failed to load after 5 seconds");
       }
     };
 

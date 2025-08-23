@@ -190,6 +190,32 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  // Google register function
+  const googleRegister = useCallback(async (idToken) => {
+    dispatch({ type: authActions.LOGIN_START });
+
+    try {
+      const response = await authAPI.googleRegister(idToken);
+      const { access_token, refresh_token, user } = response;
+
+      // Store tokens
+      tokenManager.setTokens(access_token, refresh_token);
+
+      dispatch({
+        type: authActions.LOGIN_SUCCESS,
+        payload: { user },
+      });
+
+      return { success: true };
+    } catch (error) {
+      dispatch({
+        type: authActions.LOGIN_FAILURE,
+        payload: { error: error.message },
+      });
+      return { success: false, error: error.message };
+    }
+  }, []);
+
   // Logout function
   const logout = useCallback(() => {
     tokenManager.clearTokens();
@@ -247,10 +273,11 @@ export const AuthProvider = ({ children }) => {
       login,
       register,
       googleLogin,
+      googleRegister,
       logout,
       clearError,
     }),
-    [state, login, register, googleLogin, logout, clearError]
+    [state, login, register, googleLogin, googleRegister, logout, clearError]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

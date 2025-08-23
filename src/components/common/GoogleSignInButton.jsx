@@ -106,7 +106,12 @@ const GoogleSignInButton = ({
             logo_alignment: "left",
             // Improve accessibility
             locale: "en",
+            // Hide the button visually but keep functionality
+            type: "standard",
           });
+
+          // Store the Google button instance for manual triggering
+          window.googleButtonInstance = googleButtonRef.current;
 
           isInitialized.current = true;
           console.log(
@@ -140,9 +145,9 @@ const GoogleSignInButton = ({
   }, [GOOGLE_CLIENT_ID, handleCredentialResponse]);
 
   const handleManualGoogleAuth = () => {
-    if (window.google && window.google.accounts) {
+    if (window.google && window.google.accounts && isInitialized.current) {
       try {
-        // Manual trigger for Google authentication
+        // Trigger Google authentication directly
         window.google.accounts.id.prompt((notification) => {
           console.log("Google prompt notification:", notification);
           if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
@@ -181,57 +186,59 @@ const GoogleSignInButton = ({
 
   return (
     <Box w="full">
-      {/* Google's native button container */}
-      <div ref={googleButtonRef} style={{ width: "100%" }} />
+      {/* Hidden Google button for functionality only */}
+      <div
+        ref={googleButtonRef}
+        style={{
+          width: "100%",
+          height: "0",
+          overflow: "hidden",
+          position: "absolute",
+          opacity: 0,
+          pointerEvents: "none",
+        }}
+      />
 
-      {/* Fallback button if Google button fails to load */}
-      {!isInitialized.current && (
-        <Box>
-          <Button
-            onClick={handleManualGoogleAuth}
-            size="lg"
-            variant="outline"
-            colorScheme="gray"
-            w="full"
-            borderColor="gray.300"
-            _hover={{
-              borderColor: "gray.400",
-              shadow: "md",
-            }}
-            opacity={0.7}
-            cursor="not-allowed"
-          >
-            <HStack spacing={3}>
-              {/* Google Logo */}
-              <svg width="18" height="18" viewBox="0 0 18 18">
-                <path
-                  fill="#4285F4"
-                  d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2.04a4.8 4.8 0 0 1-7.18-2.53H1.83v2.07A8 8 0 0 0 8.98 17z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M4.5 10.49a4.8 4.8 0 0 1 0-3.07V5.35H1.83a8 8 0 0 0 0 7.28z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M8.98 4.72c1.16 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.35L4.5 7.42a4.77 4.77 0 0 1 4.48-2.7z"
-                />
-              </svg>
-              <Text fontSize="md" fontWeight="medium">
-                {text}
-              </Text>
-            </HStack>
-          </Button>
-          <Text fontSize="xs" color="gray.500" textAlign="center" mt={2}>
-            Google sign-in temporarily unavailable due to browser security
-            policies
+      {/* Main styled button that triggers Google auth */}
+      <Button
+        onClick={handleManualGoogleAuth}
+        size="lg"
+        variant="outline"
+        colorScheme="gray"
+        w="full"
+        borderColor="gray.300"
+        _hover={{
+          borderColor: "gray.400",
+          shadow: "md",
+        }}
+        borderRadius="md"
+        isLoading={isLoading}
+      >
+        <HStack spacing={3}>
+          {/* Google Logo */}
+          <svg width="18" height="18" viewBox="0 0 18 18">
+            <path
+              fill="#4285F4"
+              d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"
+            />
+            <path
+              fill="#34A853"
+              d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2.04a4.8 4.8 0 0 1-7.18-2.53H1.83v2.07A8 8 0 0 0 8.98 17z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M4.5 10.49a4.8 4.8 0 0 1 0-3.07V5.35H1.83a8 8 0 0 0 0 7.28z"
+            />
+            <path
+              fill="#EA4335"
+              d="M8.98 4.72c1.16 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.35L4.5 7.42a4.77 4.77 0 0 1 4.48-2.7z"
+            />
+          </svg>
+          <Text fontSize="md" fontWeight="medium">
+            {text}
           </Text>
-        </Box>
-      )}
+        </HStack>
+      </Button>
     </Box>
   );
 };

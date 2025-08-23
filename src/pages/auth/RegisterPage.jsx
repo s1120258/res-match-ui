@@ -190,11 +190,12 @@ const RegisterPage = () => {
                 )}
 
                 {/* First Name Field */}
-                <FormControl isRequired>
+                <FormControl>
                   <FormLabel color="gray.700">
                     <HStack spacing={2}>
                       <Icon as={FiUser} />
                       <Text>First Name</Text>
+                      <Text color="red.500">*</Text>
                     </HStack>
                   </FormLabel>
                   <Input
@@ -206,15 +207,17 @@ const RegisterPage = () => {
                     size="lg"
                     borderRadius="md"
                     autoComplete="given-name"
+                    required
                   />
                 </FormControl>
 
                 {/* Last Name Field */}
-                <FormControl isRequired>
+                <FormControl>
                   <FormLabel color="gray.700">
                     <HStack spacing={2}>
                       <Icon as={FiUser} />
                       <Text>Last Name</Text>
+                      <Text color="red.500">*</Text>
                     </HStack>
                   </FormLabel>
                   <Input
@@ -226,15 +229,17 @@ const RegisterPage = () => {
                     size="lg"
                     borderRadius="md"
                     autoComplete="family-name"
+                    required
                   />
                 </FormControl>
 
                 {/* Email Field */}
-                <FormControl isRequired>
+                <FormControl>
                   <FormLabel color="gray.700">
                     <HStack spacing={2}>
                       <Icon as={FiMail} />
                       <Text>Email Address</Text>
+                      <Text color="red.500">*</Text>
                     </HStack>
                   </FormLabel>
                   <Input
@@ -246,15 +251,17 @@ const RegisterPage = () => {
                     size="lg"
                     borderRadius="md"
                     autoComplete="email"
+                    required
                   />
                 </FormControl>
 
                 {/* Password Field */}
-                <FormControl isRequired>
+                <FormControl>
                   <FormLabel color="gray.700">
                     <HStack spacing={2}>
                       <Icon as={FiLock} />
                       <Text>Password</Text>
+                      <Text color="red.500">*</Text>
                     </HStack>
                   </FormLabel>
                   <Input
@@ -266,15 +273,17 @@ const RegisterPage = () => {
                     size="lg"
                     borderRadius="md"
                     autoComplete="new-password"
+                    required
                   />
                 </FormControl>
 
                 {/* Confirm Password Field */}
-                <FormControl isRequired>
+                <FormControl>
                   <FormLabel color="gray.700">
                     <HStack spacing={2}>
                       <Icon as={FiLock} />
                       <Text>Confirm Password</Text>
+                      <Text color="red.500">*</Text>
                     </HStack>
                   </FormLabel>
                   <Input
@@ -286,6 +295,7 @@ const RegisterPage = () => {
                     size="lg"
                     borderRadius="md"
                     autoComplete="new-password"
+                    required
                   />
                 </FormControl>
 

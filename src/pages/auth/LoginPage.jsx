@@ -132,11 +132,12 @@ const LoginPage = () => {
                 )}
 
                 {/* Email Field */}
-                <FormControl isRequired>
+                <FormControl>
                   <FormLabel color="gray.700">
                     <HStack spacing={2}>
                       <Icon as={FiUser} />
                       <Text>Email Address</Text>
+                      <Text color="red.500">*</Text>
                     </HStack>
                   </FormLabel>
                   <Input
@@ -148,15 +149,17 @@ const LoginPage = () => {
                     size="lg"
                     borderRadius="md"
                     autoComplete="username"
+                    required
                   />
                 </FormControl>
 
                 {/* Password Field */}
-                <FormControl isRequired>
+                <FormControl>
                   <FormLabel color="gray.700">
                     <HStack spacing={2}>
                       <Icon as={FiLock} />
                       <Text>Password</Text>
+                      <Text color="red.500">*</Text>
                     </HStack>
                   </FormLabel>
                   <Input
@@ -168,6 +171,7 @@ const LoginPage = () => {
                     size="lg"
                     borderRadius="md"
                     autoComplete="current-password"
+                    required
                   />
                 </FormControl>
 

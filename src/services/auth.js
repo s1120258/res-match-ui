@@ -59,6 +59,20 @@ export const authAPI = {
       );
     }
   },
+
+  // Google OAuth authentication
+  googleAuth: async (idToken) => {
+    try {
+      const response = await apiClient.post("/api/v1/auth/google/verify", {
+        id_token: idToken,
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(
+        error.response?.data?.detail || "Google authentication failed"
+      );
+    }
+  },
 };
 
 // Token management utilities

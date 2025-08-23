@@ -25,6 +25,7 @@ import {
 import { FiUser, FiLock, FiArrowRight } from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
 import logoImage from "../../assets/icons/custom/logo.svg";
+import GoogleSignInButton from "../../components/common/GoogleSignInButton";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -181,6 +182,38 @@ const LoginPage = () => {
                 >
                   Sign In
                 </Button>
+
+                {/* Divider */}
+                <Box position="relative" py={4}>
+                  <Box
+                    position="absolute"
+                    top="50%"
+                    left="0"
+                    right="0"
+                    height="1px"
+                    bg="gray.200"
+                    transform="translateY(-50%)"
+                  />
+                  <Text
+                    position="relative"
+                    display="inline-block"
+                    bg="white"
+                    px={4}
+                    color="gray.500"
+                    fontSize="sm"
+                    mx="auto"
+                    textAlign="center"
+                    w="fit-content"
+                  >
+                    OR
+                  </Text>
+                </Box>
+
+                {/* Google Sign In Button */}
+                <GoogleSignInButton
+                  text="Sign in with Google"
+                  isLoading={isLoading}
+                />
 
                 {/* Register Link */}
                 <Box textAlign="center" pt={4}>
